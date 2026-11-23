@@ -5,3 +5,5 @@ dist/
 Thumbs.db
 .claude/settings.local.json
 .vscode/
+.build/
+plugins/*/bin/
