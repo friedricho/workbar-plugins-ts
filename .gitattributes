@@ -1,0 +1,18 @@
+# Normalize text to LF in the repo; check out with the platform default.
+* text=auto eol=lf
+
+# Golden files must stay byte-exact on every OS (Quick Capture has CRLF fixtures).
+**/Fixtures/** -text
+**/fixtures/** -text
+*.expected.md -text
+
+# Windows-only scripts keep CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary
+*.png binary
+*.ico binary
+*.icns binary
+*.sqlite binary

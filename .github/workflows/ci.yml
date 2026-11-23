@@ -1,0 +1,61 @@
+# Typecheck, unit tests and plugin builds on macOS, Windows and Linux.
+# The SDK comes from the sibling workbar-electron checkout (side-by-side
+# layout), which is private: it needs the WORKBAR_ELECTRON_TOKEN secret, a
+# fine-grained token with read access to friedricho/workbar-electron.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: workbar-plugins-ts
+
+      - name: Check out workbar-electron (the SDK) next to it
+        uses: actions/checkout@v5
+        with:
+          repository: friedricho/workbar-electron
+          ref: main
+          path: workbar-electron
+          token: ${{ secrets.WORKBAR_ELECTRON_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: workbar-plugins-ts/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: workbar-plugins-ts/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: workbar-plugins-ts
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: workbar-plugins-ts
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: workbar-plugins-ts
+        run: pnpm test
+
+      - name: Build plugins
+        working-directory: workbar-plugins-ts
+        run: pnpm build

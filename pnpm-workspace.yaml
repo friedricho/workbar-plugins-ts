@@ -1,0 +1,3 @@
+# Single package; listed so pnpm 10 allows esbuild's install script.
+onlyBuiltDependencies:
+  - esbuild

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2024"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@workbar/sdk": ["../workbar-electron/packages/sdk/src/index.ts"],
+      "@workbar/sdk/testing": ["../workbar-electron/packages/sdk/src/testing.ts"]
+    }
+  },
+  "include": ["plugins/*/src", "plugins/*/test", "shared", "*.config.ts"]
+}
