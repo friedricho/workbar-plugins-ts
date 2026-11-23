@@ -1,0 +1,34 @@
+{
+  "five_hour": null,
+  "seven_day": null,
+  "seven_day_cowork": null,
+  "extra_usage": {
+    "is_enabled": true,
+    "monthly_limit": 110000,
+    "used_credits": 110000.0,
+    "utilization": 100.0,
+    "currency": "USD",
+    "decimal_places": 2,
+    "disabled_reason": null,
+    "user_disabled": false,
+    "spend_limit_reached": true,
+    "credits_ever_enabled": true,
+    "daily": null,
+    "weekly": null
+  },
+  "limits": [],
+  "spend": {
+    "used":  { "amount_minor": 110000, "currency": "USD", "exponent": 2 },
+    "limit": { "amount_minor": 110000, "currency": "USD", "exponent": 2 },
+    "percent": 100,
+    "severity": "exceeded",
+    "enabled": true,
+    "disabled_reason": null,
+    "cap": { "money": null, "credits": { "amount_minor": 110000, "exponent": 2 } },
+    "balance": null,
+    "auto_reload": null,
+    "can_purchase_credits": false,
+    "can_toggle": false
+  },
+  "member_dashboard_available": true
+}
