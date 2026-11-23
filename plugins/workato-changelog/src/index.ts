@@ -86,6 +86,9 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
   let unwatch: (() => void) | null = null;
   let running: { cancelled: boolean } | null = null;
   let currentRun: Promise<void> | null = null;
+  /** The last run's success line, rebuilt on every publish: a scheduled run
+   *  finishes before the scheduler re-plans, so "next run" must refresh. */
+  let successLine: (() => string) | null = null;
 
   const loadConfig = async (c: PluginContext): Promise<WorkatoConfig> => {
     const maxPages = (await c.settings.get<number>(MAX_PAGES_KEY)) ?? 0;
@@ -107,13 +110,14 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
       { kind: 'item', id: 'open', label: 'Open Output Folder', enabled: config.vaultFolder !== '' },
     ];
     ctx.menu.set(rows);
+    if (successLine) ctx.reportHealth(health.ok(successLine()));
     ctx.reportStatus({ lastRun: statusLine(), entries: `${entriesTotal} entries` });
   };
 
   const arm = async (): Promise<void> => {
     if (!ctx || !controller) return;
     config = await loadConfig(ctx);
-    if (!isComplete(config)) ctx.reportHealth(health.ok(NOT_CONFIGURED));
+    if (!isComplete(config)) { successLine = null; ctx.reportHealth(health.ok(NOT_CONFIGURED)); }
     await controller.arm();
     publish();
   };
@@ -126,17 +130,19 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
     entriesTotal = s.entriesTotal;
     await c.settings.set(RENDERED_FOLDER_KEY, folder);
     if (reason === 'manual') { await c.scheduler.recordRun(JOB_ID); await controller?.manualRunFinished(); }
-    const next = controller?.nextRunAt ? formatStatusTime(new Date(controller.nextRunAt)) : 'the next tick';
-    const detail = s.entriesNew === 0 && reRenderedAll ? `Up to date — ${s.entriesTotal} entries · re-rendered ${s.quartersWritten.length} notes · next run ${next}`
-      : s.entriesNew === 0 ? `Up to date — ${s.entriesTotal} entries · next run ${next}`
-      : `Added ${s.entriesNew} entries · ${s.entriesTotal} total · next run ${next}`;
-    c.reportHealth(health.ok(detail));
+    successLine = () => {
+      const next = controller?.nextRunAt ? formatStatusTime(new Date(controller.nextRunAt)) : 'the next tick';
+      return s.entriesNew === 0 && reRenderedAll ? `Up to date — ${s.entriesTotal} entries · re-rendered ${s.quartersWritten.length} notes · next run ${next}`
+        : s.entriesNew === 0 ? `Up to date — ${s.entriesTotal} entries · next run ${next}`
+        : `Added ${s.entriesNew} entries · ${s.entriesTotal} total · next run ${next}`;
+    };
     c.logger.info(`${reason} run finished — ${s.pagesFetched} pages, ${s.entriesNew} new, quarters written: ${s.quartersWritten.join(', ')}${s.reachedEndOfHistory ? ' · reached end of archive' : ''}`);
     publish();
   };
 
   const failed = async (c: PluginContext, reason: string, error: unknown): Promise<void> => {
     if (error instanceof Cancelled) return;
+    successLine = null;
     const message = error instanceof Error ? error.message : String(error);
     c.logger.error(`${reason} run failed: ${message}`);
     if (error instanceof WorkatoClientError) {
@@ -173,12 +179,13 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
     const c = ctx;
     if (!c || !store) return;
     config = await loadConfig(c);
-    if (!isComplete(config)) { c.reportHealth(health.ok(NOT_CONFIGURED)); publish(); return; }
+    if (!isComplete(config)) { successLine = null; c.reportHealth(health.ok(NOT_CONFIGURED)); publish(); return; }
     if (running) running.cancelled = true;
     const token = { cancelled: false };
     running = token;
     const folder = config.vaultFolder;
     const folderChanged = (await c.settings.get<string>(RENDERED_FOLDER_KEY)) !== folder;
+    successLine = null;
     c.reportHealth(health.ok('Scraping Workato changelog…'));
     c.logger.info(`${reason} run started — vault ${folder}${folderChanged ? ' (folder changed — re-rendering all notes)' : ''}`);
     const client = options.client ? options.client(c) : new WorkatoClient(c.http);

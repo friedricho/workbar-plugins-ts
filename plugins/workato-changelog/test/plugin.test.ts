@@ -108,6 +108,16 @@ describe('Workato Changelog plugin', () => {
     expect(fs.readdirSync(path.join(tmp, 'vault'))).toHaveLength(2);
   });
 
+  it('after a scheduled run, the host’s re-plan refreshes "next run" in the health line', async () => {
+    const { t, plugin } = setup();
+    t.settings.set(VAULT_FOLDER_KEY, path.join(tmp, 'vault'));
+    await plugin.activate(t.context);
+    await plugin.onJob!(JOB_ID);
+    plugin.onJobNextRun!(JOB_ID, new Date(2030, 0, 2, 9, 0).toISOString());
+    await new Promise(r => setTimeout(r, 0)); // the controller emits after an async lastRunAt
+    expect(t.health.at(-1)).toMatchObject({ kind: 'ok', detail: expect.stringContaining('next run Jan 2, 9:00 AM') });
+  });
+
   it('Open Output Folder opens the vault folder through ctx.shell', async () => {
     const { t, plugin } = setup();
     t.settings.set(VAULT_FOLDER_KEY, path.join(tmp, 'vault'));
