@@ -36,3 +36,10 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   tool; Workato Changelog ported (57 tests; live scrape verified through the
   CLI). Needs the WORKBAR_ELECTRON_TOKEN secret for CI. Next: MuleSoft
   Changelog, Pendo Feedback, AI Gateway Budget.
+- 2026-11-23 — AI Gateway Budget ported (PR #4, folder gateway-budget, id
+  boomibudget; 44 tests incl. shared). The corporate token helper runs via
+  node:child_process execFile (an external program, not a native module);
+  on Windows there is no helper, so only a saved token works. Live check:
+  catch-up fetch at launch, helper missing → sign-in line + error health.
+  Phase 5 plugins are all ported; next is phase 6 (needs the Windows
+  phase 0 run first).

@@ -1,0 +1,13 @@
+{
+  "user_id": "owen.friedrich@boomi.com",
+  "budget_limits": [
+    {
+      "budget_duration": "30d",
+      "max_budget": 900.0,
+      "current_spend": 109.870176,
+      "used_percentage": 12.21,
+      "reset_at": "2026-12-01T00:00:00+00:00"
+    }
+  ],
+  "generated_at": "2026-11-18T17:52:34.970343+00:00"
+}
