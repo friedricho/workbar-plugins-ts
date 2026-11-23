@@ -2,7 +2,9 @@
 
 TypeScript ports of the private Swift plugins for the Electron WorkBar.
 The plan is the "WorkBar Electron Migration Plan" doc; host conventions are
-in workbar-electron's CLAUDE.md.
+in workbar-electron's CLAUDE.md. **Start with `../workbar-electron/docs/HANDOFF.md`**:
+it has the remaining work (Audio Fix, Claude Spend, Quick Capture, live
+checks) and the parts of the plan those need.
 
 ## Layout
 
@@ -54,3 +56,5 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   catch-up fetch at launch, helper missing → sign-in line + error health.
   Phase 5 plugins are all ported; next is phase 6 (needs the Windows
   phase 0 run first).
+- 2026-11-23 — PRs #1–#4 merged into main (all four phase 5 plugins).
+  Next work moves to the Mac; see workbar-electron/docs/HANDOFF.md.
