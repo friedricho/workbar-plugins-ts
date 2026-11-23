@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Mule Maven Plugin 4.10.4 Release Notes | MuleSoft Documentation</title>
+  <meta charset="utf-8">
+<script>
+  (function(){var s;try{s=localStorage.getItem('docs-theme')}catch(e){}var p=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',s==='dark'||s==='light'?s:p)})()
+</script>
+<meta name="color-scheme" content="light dark">
+<meta name="page-url" content="/release-notes/mule-maven-plugin/mule-maven-plugin-4.10.4-release-notes">
+<meta name="page-component" content="release-notes">
+<meta name="page-version" content="master">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+
+    <meta name="description" content="MuleSoft Documentation Site">
+
+
+
+    <meta name="product" content="Release Notes">
+
+    <meta name="version-with-latest" content="master [latest]">
+    <meta name="docsearch:version" content="latest">
+
+<meta name="google-site-verification" content="NDIrUbizqamSncO6tSzBUHFR8VIKcjAocR4UrnKau2s" />
+
+    <meta name="generator" content="Antora 3.2.1">
+
+<link rel="stylesheet" href="https://www.mulesoft.com/themes/custom/mule_foundation/endpoints/css/header-footer.css" type="text/css">
+<link rel="stylesheet" href="https://www.mulesoft.com/themes/custom/mule_foundation/css/onetrust.css" 
+    type="text/css" media="print" onload="this.media='all'; this.onload = null"><link rel="canonical" href="https://docs.mulesoft.com/release-notes/mule-maven-plugin/mule-maven-plugin-4.10.4-release-notes">
+<link rel="icon" href="../../_/img/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../../_/css/site.css">
+<link rel="preconnect" href="https://T7T00EUC3N-dsn.algolia.net" crossorigin />
+  <!-- Google Tag Manager -->
+<script id="data-google-tag-manager" nonce="fa5040687c08a3522968209932ed3ef8"
+  data-nonce="fa5040687c08a3522968209932ed3ef8">(function (w, d, s, l, i) { w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' }); var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl; var n = d.querySelector('[nonce]'); n && j.setAttribute('nonce', n.nonce || n.getAttribute('nonce')); f.parentNode.insertBefore(j, f); })(window, document, 'script', 'dataLayer', 'GTM-NH8DNZL');</script>
+<script nonce="fa5040687c08a3522968209932ed3ef8" async="" src="https://www.googletagmanager.com/gtm.js?id=GTM-NH8DNZL"></script>
+<!-- End Google Tag Manager -->
+
+<!-- Script for common areas on-clicks -->
+<script src="https://www.mulesoft.com/onClicks/app.js" defer=""></script></head>
+
+<body class="flex col">
+  <div class="skip-link-container">
+    <button tabindex="0" class="skip-link">Skip to left navigation</button>
+    <button tabindex="0" class="skip-link">Skip to main content</button>
+    <button tabindex="0" class="skip-link">Skip to page navigation</button>
+</div>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NH8DNZL" height="0" width="0" class="hidden-invisible"></iframe></noscript>
+    <div data-nav-version="1.0.0" class="ms-com-content ms-com-content-header br-nav updated-contact-pages new-nav no-helmet">
+  <div></div>
+  <header class="ms-com-header desktop-header">
+    <div class="header-overlay"></div>
+    <div class="header-wrapper">
+      <div class="header-inside"> <a href="https://www.mulesoft.com" class="logo" aria-label="Link to MuleSoft homepage"></a>
+        <div>
+          <nav role="navigation" aria-label="Main" id="block-mainnavigation" class="block-mainnavigation">
+            <ul class="menu menu--simple-mega-menu" role="menu">
+              <li class="menu-item" role="menuitem" aria-label="Products"> <span target="_self" class="main-menu-product" data-simple-mega-menu="166">Products</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header product">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <nav class="nav-intro"> <span class="menu-label">For IT Teams</span> <a class="nav-main-title" href="https://www.mulesoft.com/platform/enterprise-integration" role="menuitem"> <span class="title">Platform</span> <span>World&#x2019;s #1 integration and API platform</span> </a> </nav>
+                              <div class="anypoint-menu">
+                                <nav class="menu"> <span class="menu-label" role="heading">Integration</span> <a href="https://www.mulesoft.com/platform/api/anypoint-code-builder" role="menuitem">Code Builder</a> <a href="https://www.mulesoft.com/platform/exchange" role="menuitem">Exchange</a> <a href="https://www.mulesoft.com/platform/cloud-connectors" role="menuitem">Connectors</a> <a href="https://www.mulesoft.com/platform/ai/model-context-protocol" role="menuitem">MCP Support</a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">AI &amp; API Management</span> <a href="https://www.mulesoft.com/platform/api/flex-api-gateway" role="menuitem">Omni Gateway</a> <a href="https://www.mulesoft.com/platform/api/governance-anypoint" role="menuitem">API Governance</a> <a href="https://www.mulesoft.com/platform/api/monitoring-anypoint" role="menuitem">Monitoring</a> <a href="https://www.mulesoft.com/platform/api/manager" role="menuitem">API Manager</a> <a href="https://www.mulesoft.com/platform/ai-gateway" role="menuitem">AI Gateway</a> </nav> <a class="see-all-link" href="https://www.mulesoft.com/platform/anypoint-platform-features" role="menuitem">See all</a>
+                              </div>
+                            </div>
+                            <div class="try-free">
+                              <nav class="menu"> <span class="menu-label" role="heading">Try for free</span> <a href="https://anypoint.mulesoft.com/login/#/signup?apintent=generic" role="menuitem" target="_blank"> Sign up to Anypoint Platform<span class="external-link" aria-label="external link"></span> </a> <a href="https://www.mulesoft.com/lp/dl/anypoint-mule-studio" role="menuitem"> Download Anypoint Code Builder, Studio, Mule </a> </nav>
+                            </div>
+                          </div>
+                          <div class="full-right-menu">
+                            <div class="mega-menu-container-right">
+                              <nav class="nav-intro with-flags"> <span class="menu-label">For Business Teams</span> <a class="nav-main-title" href="https://www.mulesoft.com/platform/flow-integration" role="menuitem"> <span class="title">MuleSoft for Flow: Integration</span> <span>Point to point integration with clicks, not code</span> </a> <a class="nav-main-title" href="https://www.mulesoft.com/platform/intelligent-document-processing" role="menuitem"> <span class="title">Intelligent Document Processing</span> <span>Extract unstructured data from documents with AI</span> </a> <a class="nav-main-title" href="https://dataloader.io/" target="_blank" role="menuitem"> <span class="title">Dataloader.io</span> <span>Securely import and export unlimited Salesforce data</span> </a> </nav>
+                              <nav class="nav-intro with-flags"> <span class="menu-label">For AI</span> <a class="nav-main-title" href="https://www.mulesoft.com/ai/agent-fabric" role="menuitem" style="margin-bottom:8px;"> <span class="title">Agent Fabric</span> <span>Govern and orchestrate every AI agent</span> </a>
+                                <div class="anypoint-menu" style="margin-top:16px;">
+                                  <nav class="menu" style="padding-left:0;"> <a href="https://www.mulesoft.com/platform/exchange">Registry</a> <a href="https://www.mulesoft.com/ai/agent-scanners">Scanners</a> <a href="https://www.mulesoft.com/ai/agent-broker">Broker</a> </nav>
+                                  <nav class="menu" style="padding-left:0;"> <a href="https://www.mulesoft.com/platform/ai/ai-agent-governance">Governance</a> <a href="https://www.mulesoft.com/platform/ai-gateway">AI Gateway</a> <a href="https://www.mulesoft.com/ai/agent-visualizer">Visualizer</a> </nav>
+                                </div> <a class="nav-main-title" href="https://www.mulesoft.com/platform/agentforce" role="menuitem" style="margin-top:20px; margin-bottom:12px;"> <span class="title">Agentforce MuleSoft</span> <span>Power Agentforce with APIs and actions</span> </a> <a class="nav-main-title" href="https://www.mulesoft.com/platform/api/vibes" role="menuitem" style="margin-top:16px;"> <span class="title">MuleSoft Vibes</span> <span>AI built for the integration lifecycle</span> </a>
+                              </nav>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.mulesoft.com/platform/ai-gateway-announcement">
+                        <div class="featured-left-content square-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="AI Gateway" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/ai_gateway_hero_light_2x--3---1-.png"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content"> Bring order to AI with AI Gateway </span></p>
+                          <div class="mega-menu-item-footer-featured-content"> AI &amp; API operations with enterprise control</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Learn more</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Solutions"> <span target="_self" class="main-menu-solutions" data-simple-mega-menu="171">Solutions</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header product">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <div class="solutions-menu">
+                                <nav class="menu"> <span class="menu-label" role="heading">Featured Solutions</span> <a class="solutions-title" href="https://www.mulesoft.com/api/management" role="menuitem"> <span class="title">API Management</span> <span class="small-intro">Manage and secure any API, built and deployed anywhere</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/integration" role="menuitem"> <span class="title">Integration</span> <span class="small-intro">Connect any system, data, or API to integrate at scale</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/automation" role="menuitem"> <span class="title">Automation</span> <span class="small-intro">Automate processes and tasks for every team</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/platform/ai" role="menuitem"> <span class="title">MuleSoft AI</span> <span class="small-intro">Connect data and automate workflows with AI</span> </a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">Featured Integration</span> <a class="solutions-title" href="https://www.mulesoft.com/integration/salesforce" role="menuitem"> <span class="title">Salesforce</span> <span class="small-intro">Power connected experiences with Salesforce integration</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/integration/sap" role="menuitem"> <span class="title">SAP</span> <span class="small-intro">Unlock SAP and connect your IT landscape</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/integration-solutions/soa/aws" role="menuitem"> <span class="title">AWS</span> <span class="small-intro">Get the most out of AWS with integration and APIs</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/small-business" role="menuitem"> <span class="title">Small business</span> <span class="small-intro">Unlock AI-powered success for your small business</span> </a> </nav>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="full-right-menu">
+                            <div class="mega-menu-container-right">
+                              <nav class="menu"> <span class="menu-label" role="heading">By Industry</span> <a href="https://www.mulesoft.com/solutions/financial-services" role="menuitem">Financial services</a> <a href="https://www.mulesoft.com/integration-solutions/soa/government" role="menuitem">Government</a> <a href="https://www.mulesoft.com/healthcare" role="menuitem">Healthcare and life sciences</a> <a href="https://www.mulesoft.com/integration-solutions/soa/higher-education" role="menuitem">Higher education</a> <a href="https://www.mulesoft.com/integration-solutions/soa/insurance" role="menuitem">Insurance</a> <a href="https://www.mulesoft.com/integration-solutions/api/manufacturing-edi-erp" role="menuitem">Manufacturing</a> <a href="https://www.mulesoft.com/integration-solutions/soa/digital-media" role="menuitem">Media and telecom</a> <a href="https://www.mulesoft.com/integration-solutions/saas/retail" role="menuitem">Retail</a> <a href="https://www.mulesoft.com/integration-solutions/soa/consumer-goods" role="menuitem">Consumer goods</a> </nav>
+                              <nav class="menu"> <span class="menu-label" role="heading">By Initiative</span> <a href="https://www.mulesoft.com/integration/b2b-edi-platform" role="menuitem">B2B EDI integration</a> <a href="https://www.mulesoft.com/integration-solutions/api/devops" role="menuitem">DevOps</a> <a href="https://www.mulesoft.com/ecommerce" role="menuitem">eCommerce</a> <a href="https://www.mulesoft.com/event-driven-architecture" role="menuitem">Event-Driven Architecture</a> <a href="https://www.mulesoft.com/integration-solutions/api/ipaas" role="menuitem">iPaaS</a> <a href="https://www.mulesoft.com/legacy-system-modernization/legacy-system-modernization-solution" role="menuitem">Legacy system modernization</a> <a href="https://www.mulesoft.com/integration/microservices" role="menuitem">Microservices</a> <a href="https://www.mulesoft.com/integration/move-to-the-cloud" role="menuitem">Move to the cloud</a> <a href="https://www.mulesoft.com/integration-solutions/api/omnichannel" role="menuitem">Omnichannel</a> <a href="https://www.mulesoft.com/integration-solutions/api/saas" role="menuitem">SaaS integration</a> <a href="https://www.mulesoft.com/integration-solutions/api/360-degree-view-customer" role="menuitem">Single view of customer</a> </nav>
+                              <div class="see-all-wrapper"> <a class="see-all-link" href="https://www.mulesoft.com/integration-solutions" role="menuitem">See all solutions</a></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.mulesoft.com/lp/ebook/api/salesforce-integration-customer-360">
+                        <div class="featured-left-content square-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="An image of the ebook cover: Create Connected Experiences with MuleSoft + AI" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/image-mulesoft-solutions-create-connected-experiences-with-ai.png"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content">Create connected experiences with AI</span></p>
+                          <p class="content-link"></p>
+                          <div class="mega-menu-item-footer-featured-content"> Learn the critical steps to developing an AI strategy and foundation.</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Read more</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Services"> <span target="_self" class="main-menu-services" data-simple-mega-menu="176">Services</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header product">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <div class="services-menu">
+                                <nav class="menu"> <span class="menu-label" role="heading">Training</span> <a class="services-title" href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=Mulesoft" target="&#x201D;_blank&#x201D;" role="menuitem">Courses</a> <a class="services-title" href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=MuleSoft&#x201D;%20target=&#x201D;_blank&#x201D;%20role=" menuitem>Certifications</a> <a class="services-title" href="https://trailhead.salesforce.com/help?article=Salesforce-Learning-Credits-FAQ-and-Redemption-Process" target="&#x201D;_blank&#x201D;" role="menuitem">Training credits</a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">Customer success</span> <a class="services-title" href="https://www.mulesoft.com/support-and-services/consulting" role="menuitem">MuleSoft Catalyst</a> <a class="services-title" href="https://www.mulesoft.com/support-and-services/mobilize-consulting-solutions" role="menuitem">Business Value Services</a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">Support</span> <a class="services-title" href="https://help.mulesoft.com/s/" role="menuitem">Help Center</a> <a class="services-title" href="https://trailhead.salesforce.com/trailblazer-community/neighborhoods/mulesoft" role="menuitem">Community Forums</a> </nav>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.mulesoft.com/lp/whitepaper/3-predictions-future-of-connected-ai-agents">
+                        <div class="featured-left-content large-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="An image of the ebook cover: 3 Predictions for the Future of Connected AI Agents" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/image-mulesoft-services-future-of-connected-ai-agents.png"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content">Future of connected AI agents</span></p>
+                          <p class="content-link"></p>
+                          <div class="mega-menu-item-footer-featured-content">Discover how to prepare for the future of autonomous AI agents.</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Read more</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Resources"> <span target="_self" class="main-menu-resources" data-simple-mega-menu="181">Resources</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header resources">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <div class="anypoint-menu">
+                                <nav class="menu"> <span class="menu-label">Featured Resources</span> <a class="resources-title" href="https://www.mulesoft.com/community" role="menuitem">Community</a> <a class="resources-title" href="https://www.mulesoft.com/case-studies" role="menuitem">Customer stories</a> <a class="resources-title" href="https://www.salesforce.com/news/products/mulesoft/" target="_blank" role="menuitem">Newsroom</a> <a class="resources-title" href="https://www.linkedin.com/newsletters/technically-speaking-7140068811264651264/" target="_blank" role="menuitem">Newsletter sign-up</a> </nav>
+                              </div>
+                              <nav class="menu"> <span class="menu-label" role="heading">Explore</span> <a class="resources-title" href="https://www.mulesoft.com/webinars" role="menuitem">Webinars</a> <a class="resources-title" href="https://www.mulesoft.com/integration-resources?type%5B0%5D=demo" role="menuitem">Demos</a> <a class="resources-title" href="https://videos.mulesoft.com/" role="menuitem">Videos</a> <a class="resources-title" href="https://www.mulesoft.com/reports" role="menuitem">Analyst reports</a> <a class="resources-title" href="https://www.mulesoft.com/ebook" role="menuitem">eBooks</a> <a class="resources-title" href="https://www.mulesoft.com/whitepaper/integration-use-cases" role="menuitem">Whitepapers</a> <a class="resources-title" href="https://www.mulesoft.com/infographics" role="menuitem">Infographics</a> <a class="resources-title" href="https://www.mulesoft.com/resources/articles" role="menuitem">Articles</a> <a class="resources-title" href="https://blogs.mulesoft.com/bloghome/" role="menuitem">Blog</a> <a class="resources-title" href="https://www.mulesoft.com/api-university/what-are-apis-and-how-do-they-work" role="menuitem">API University</a> </nav>
+                            </div>
+                            <div class="see-all-wrapper"> <a class="see-all-link" href="https://www.mulesoft.com/integration-resources">See all resources</a></div>
+                          </div>
+                          <div class="full-right-menu">
+                            <div class="mega-menu-container-right">
+                              <nav class="menu"> <span class="menu-label">Events</span> <a class="resources-title" href="https://mulesoft.com/connect-ai" role="menuitem">MuleSoft Connect:AI</a> <a class="resources-title" href="https://www.mulesoft.com/dreamforce" role="menuitem">MuleSoft at Dreamforce</a> <a class="resources-title" href="https://www.salesforce.com/trailblazerdx" target="_blank" role="menuitem">MuleSoft at TrailblazerDX</a> <a class="resources-title" href="https://meetups.mulesoft.com/" role="menuitem">Community Meetups</a> <a class="resources-title" href="https://www.mulesoft.com/events" role="menuitem">All events</a> </nav>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.salesforce.com/plus/experience/dreamforce_2025/series/it_at_dreamforce_2025/episode/episode-s1e3">
+                        <div class="featured-left-content large-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="Image showing two people greeting each other" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/resourcesmulesoft.jpg"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content"> Supercharge developers. Govern and orchestrate agents. </span></p>
+                          <p class="content-link"></p>
+                          <div class="mega-menu-item-footer-featured-content">Relive the best moments from Dreamforce with our on-demand sessions.</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Start watching</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </nav>
+          <nav role="navigation" aria-label="Main Navigation Right" id="block-mainnavigationright" class="block-mainnavigationright">
+            <ul class="menu menu--simple-mega-menu" role="menu">
+              <li class="menu-item" role="menuitem" aria-label="Developers"> <span target="_self" class="main-menu-developers" data-simple-mega-menu="31">Developers</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <article class="mega-menu-item-header">
+                        <nav class="menu">
+                          <p><a href="https://developer.mulesoft.com/">Getting started</a> <a href="https://www.mulesoft.com/community">Community</a> <a href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=Mulesoft" target="_blank">Training</a> <a href="https://developer.mulesoft.com/tutorials-and-howtos">Tutorials</a> <a href="https://docs.mulesoft.com/general/">Documentation</a> <a href="https://dev-portal.mulesoft.com/">APIs, AI &amp; Tools</a></p>
+                        </nav>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Partners"> <span target="_self" class="main-menu-partners" data-simple-mega-menu="26">Partners</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <article class="mega-menu-item-header">
+                        <nav class="menu"><span style="margin-top: 0;">For customers</span> <a href="https://www.mulesoft.com/integration-partner/finder">Find a partner</a> <span style="margin-top: 20px;">For partners</span> <a href="https://www.mulesoft.com/integration-partner/become-partner">Become a partner</a></nav>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <section class="right-side">
+          <div class="contact"> <a href="https://www.mulesoft.com/contact" class="contact-link">Contact Us</a> <span>1-800-596-4880</span></div>
+          <ul class="menu menu--simple-mega-menu" role="menu">
+            <li class="menu-item flyout-right lang-selector main-menu-language" role="menuitem" aria-label="Language" aria-expanded="false" aria-haspopup="true"> <span class="globe-icon"></span>
+              <div class="mega-menu-wrapper">
+                <div class="mega-menu-background"></div>
+                <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                  <div class="field-wrapper field field-simple-mega-menu--field-header field-name-field-header field-type-text-long field-label-hidden">
+                    <div class="field-items">
+                      <div class="field-item">
+                        <div class="mega-menu-item-header">
+                          <nav class="menu language-selector notranslate"> <a href="/" class="english" role="menuitem" data-shortlan="en">English <span class="sub">(Full site)</span></a> <a href="/jp" class="japanese" role="menuitem" data-shortlan="ja">&#x65E5;&#x672C;&#x8A9E;</a> </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="menu-item flyout-right main-menu-login" role="menuitem" aria-expanded="false" aria-haspopup="true"> <span class="login-icon">Login</span>
+              <div class="mega-menu-wrapper">
+                <div class="mega-menu-background"></div>
+                <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                  <div class="field-wrapper field field-simple-mega-menu--field-header field-name-field-header field-type-text-long field-label-hidden">
+                    <div class="field-items">
+                      <div class="field-item">
+                        <div class="mega-menu-item-header">
+                          <nav class="menu"> <a href="https://anypoint.mulesoft.com/login/#/signin?apintent=generic" role="menuitem" target="_blank">Anypoint Platform <span class="external-link" aria-label="external link"></span></a> <a href="https://composer.mulesoft.com/login/sign-in" role="menuitem" target="_blank">Composer <span class="external-link" aria-label="external link"></span></a> <a href="https://help.mulesoft.com/s/login/" role="menuitem" target="_blank">Help Center <span class="external-link" aria-label="external link"></span></a></nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="no-children free-trial-btn" role="menuitem"> <a href="https://anypoint.mulesoft.com/login/#/signup?apintent=generic" class="button blue-button">Free trial</a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </header>
+  <header class="ms-com-header mobile-header">
+    <div class="mobile-header-top"> <a href="https://www.mulesoft.com/" class="logo" aria-label="Link to MuleSoft homepage"></a>
+      <section class="right-side">
+        <div class="menu-ham" tabindex="0"> <span></span> <span></span> <span></span></div>
+      </section>
+    </div>
+    <div class="mobile-header-bottom">
+      <nav class="mobile-nav">
+        <div>
+          <nav role="navigation" aria-label="Main" id="block-mainnavigation" class="block-mainnavigation">
+            <ul class="menu menu--simple-mega-menu" role="menu">
+              <li class="menu-item" role="menuitem" aria-label="Products"> <span target="_self" class="main-menu-product" data-simple-mega-menu="166">Products</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header product">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <nav class="nav-intro"> <span class="menu-label">For IT Teams</span> <a class="nav-main-title" href="https://www.mulesoft.com/platform/enterprise-integration" role="menuitem"> <span class="title">Platform</span> <span>World&#x2019;s #1 integration and API platform</span> </a> </nav>
+                              <div class="anypoint-menu">
+                                <nav class="menu"> <span class="menu-label" role="heading">Integration</span> <a href="https://www.mulesoft.com/platform/api/anypoint-code-builder" role="menuitem">Code Builder</a> <a href="https://www.mulesoft.com/platform/exchange" role="menuitem">Exchange</a> <a href="https://www.mulesoft.com/platform/cloud-connectors" role="menuitem">Connectors</a> <a href="https://www.mulesoft.com/platform/ai/model-context-protocol" role="menuitem">MCP Support</a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">AI &amp; API Management</span> <a href="https://www.mulesoft.com/platform/api/flex-api-gateway" role="menuitem">Omni Gateway</a> <a href="https://www.mulesoft.com/platform/api/governance-anypoint" role="menuitem">API Governance</a> <a href="https://www.mulesoft.com/platform/api/monitoring-anypoint" role="menuitem">Monitoring</a> <a href="https://www.mulesoft.com/platform/api/manager" role="menuitem">API Manager</a> <a href="https://www.mulesoft.com/platform/ai-gateway" role="menuitem">AI Gateway</a> </nav> <a class="see-all-link" href="https://www.mulesoft.com/platform/anypoint-platform-features" role="menuitem">See all</a>
+                              </div>
+                            </div>
+                            <div class="try-free">
+                              <nav class="menu"> <span class="menu-label" role="heading">Try for free</span> <a href="https://anypoint.mulesoft.com/login/#/signup?apintent=generic" role="menuitem" target="_blank"> Sign up to Anypoint Platform<span class="external-link" aria-label="external link"></span> </a> <a href="https://www.mulesoft.com/lp/dl/anypoint-mule-studio" role="menuitem"> Download Anypoint Code Builder, Studio, Mule </a> </nav>
+                            </div>
+                          </div>
+                          <div class="full-right-menu">
+                            <div class="mega-menu-container-right">
+                              <nav class="nav-intro with-flags"> <span class="menu-label">For Business Teams</span> <a class="nav-main-title" href="https://www.mulesoft.com/platform/flow-integration" role="menuitem"> <span class="title">MuleSoft for Flow: Integration</span> <span>Point to point integration with clicks, not code</span> </a> <a class="nav-main-title" href="https://www.mulesoft.com/platform/intelligent-document-processing" role="menuitem"> <span class="title">Intelligent Document Processing</span> <span>Extract unstructured data from documents with AI</span> </a> <a class="nav-main-title" href="https://dataloader.io/" target="_blank" role="menuitem"> <span class="title">Dataloader.io</span> <span>Securely import and export unlimited Salesforce data</span> </a> </nav>
+                              <nav class="nav-intro with-flags"> <span class="menu-label">For AI</span> <a class="nav-main-title" href="https://www.mulesoft.com/ai/agent-fabric" role="menuitem" style="margin-bottom:8px;"> <span class="title">Agent Fabric</span> <span>Govern and orchestrate every AI agent</span> </a>
+                                <div class="anypoint-menu" style="margin-top:16px;">
+                                  <nav class="menu" style="padding-left:0;"> <a href="https://www.mulesoft.com/platform/exchange">Registry</a> <a href="https://www.mulesoft.com/ai/agent-scanners">Scanners</a> <a href="https://www.mulesoft.com/ai/agent-broker">Broker</a> </nav>
+                                  <nav class="menu" style="padding-left:0;"> <a href="https://www.mulesoft.com/platform/ai/ai-agent-governance">Governance</a> <a href="https://www.mulesoft.com/platform/ai-gateway">AI Gateway</a> <a href="https://www.mulesoft.com/ai/agent-visualizer">Visualizer</a> </nav>
+                                </div> <a class="nav-main-title" href="https://www.mulesoft.com/platform/agentforce" role="menuitem" style="margin-top:20px; margin-bottom:12px;"> <span class="title">Agentforce MuleSoft</span> <span>Power Agentforce with APIs and actions</span> </a> <a class="nav-main-title" href="https://www.mulesoft.com/platform/api/vibes" role="menuitem" style="margin-top:16px;"> <span class="title">MuleSoft Vibes</span> <span>AI built for the integration lifecycle</span> </a>
+                              </nav>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.mulesoft.com/platform/ai-gateway-announcement">
+                        <div class="featured-left-content square-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="AI Gateway" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/ai_gateway_hero_light_2x--3---1-.png"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content"> Bring order to AI with AI Gateway </span></p>
+                          <div class="mega-menu-item-footer-featured-content"> AI &amp; API operations with enterprise control</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Learn more</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Solutions"> <span target="_self" class="main-menu-solutions" data-simple-mega-menu="171">Solutions</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header product">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <div class="solutions-menu">
+                                <nav class="menu"> <span class="menu-label" role="heading">Featured Solutions</span> <a class="solutions-title" href="https://www.mulesoft.com/api/management" role="menuitem"> <span class="title">API Management</span> <span class="small-intro">Manage and secure any API, built and deployed anywhere</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/integration" role="menuitem"> <span class="title">Integration</span> <span class="small-intro">Connect any system, data, or API to integrate at scale</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/automation" role="menuitem"> <span class="title">Automation</span> <span class="small-intro">Automate processes and tasks for every team</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/platform/ai" role="menuitem"> <span class="title">MuleSoft AI</span> <span class="small-intro">Connect data and automate workflows with AI</span> </a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">Featured Integration</span> <a class="solutions-title" href="https://www.mulesoft.com/integration/salesforce" role="menuitem"> <span class="title">Salesforce</span> <span class="small-intro">Power connected experiences with Salesforce integration</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/integration/sap" role="menuitem"> <span class="title">SAP</span> <span class="small-intro">Unlock SAP and connect your IT landscape</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/integration-solutions/soa/aws" role="menuitem"> <span class="title">AWS</span> <span class="small-intro">Get the most out of AWS with integration and APIs</span> </a> <a class="solutions-title" href="https://www.mulesoft.com/small-business" role="menuitem"> <span class="title">Small business</span> <span class="small-intro">Unlock AI-powered success for your small business</span> </a> </nav>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="full-right-menu">
+                            <div class="mega-menu-container-right">
+                              <nav class="menu"> <span class="menu-label" role="heading">By Industry</span> <a href="https://www.mulesoft.com/solutions/financial-services" role="menuitem">Financial services</a> <a href="https://www.mulesoft.com/integration-solutions/soa/government" role="menuitem">Government</a> <a href="https://www.mulesoft.com/healthcare" role="menuitem">Healthcare and life sciences</a> <a href="https://www.mulesoft.com/integration-solutions/soa/higher-education" role="menuitem">Higher education</a> <a href="https://www.mulesoft.com/integration-solutions/soa/insurance" role="menuitem">Insurance</a> <a href="https://www.mulesoft.com/integration-solutions/api/manufacturing-edi-erp" role="menuitem">Manufacturing</a> <a href="https://www.mulesoft.com/integration-solutions/soa/digital-media" role="menuitem">Media and telecom</a> <a href="https://www.mulesoft.com/integration-solutions/saas/retail" role="menuitem">Retail</a> <a href="https://www.mulesoft.com/integration-solutions/soa/consumer-goods" role="menuitem">Consumer goods</a> </nav>
+                              <nav class="menu"> <span class="menu-label" role="heading">By Initiative</span> <a href="https://www.mulesoft.com/integration/b2b-edi-platform" role="menuitem">B2B EDI integration</a> <a href="https://www.mulesoft.com/integration-solutions/api/devops" role="menuitem">DevOps</a> <a href="https://www.mulesoft.com/ecommerce" role="menuitem">eCommerce</a> <a href="https://www.mulesoft.com/event-driven-architecture" role="menuitem">Event-Driven Architecture</a> <a href="https://www.mulesoft.com/integration-solutions/api/ipaas" role="menuitem">iPaaS</a> <a href="https://www.mulesoft.com/legacy-system-modernization/legacy-system-modernization-solution" role="menuitem">Legacy system modernization</a> <a href="https://www.mulesoft.com/integration/microservices" role="menuitem">Microservices</a> <a href="https://www.mulesoft.com/integration/move-to-the-cloud" role="menuitem">Move to the cloud</a> <a href="https://www.mulesoft.com/integration-solutions/api/omnichannel" role="menuitem">Omnichannel</a> <a href="https://www.mulesoft.com/integration-solutions/api/saas" role="menuitem">SaaS integration</a> <a href="https://www.mulesoft.com/integration-solutions/api/360-degree-view-customer" role="menuitem">Single view of customer</a> </nav>
+                              <div class="see-all-wrapper"> <a class="see-all-link" href="https://www.mulesoft.com/integration-solutions" role="menuitem">See all solutions</a></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.mulesoft.com/lp/ebook/api/salesforce-integration-customer-360">
+                        <div class="featured-left-content square-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="An image of the ebook cover: Create Connected Experiences with MuleSoft + AI" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/image-mulesoft-solutions-create-connected-experiences-with-ai.png"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content">Create connected experiences with AI</span></p>
+                          <p class="content-link"></p>
+                          <div class="mega-menu-item-footer-featured-content"> Learn the critical steps to developing an AI strategy and foundation.</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Read more</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Services"> <span target="_self" class="main-menu-services" data-simple-mega-menu="176">Services</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header product">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <div class="services-menu">
+                                <nav class="menu"> <span class="menu-label" role="heading">Training</span> <a class="services-title" href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=Mulesoft" target="&#x201D;_blank&#x201D;" role="menuitem">Courses</a> <a class="services-title" href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=MuleSoft&#x201D;%20target=&#x201D;_blank&#x201D;%20role=" menuitem>Certifications</a> <a class="services-title" href="https://trailhead.salesforce.com/help?article=Salesforce-Learning-Credits-FAQ-and-Redemption-Process" target="&#x201D;_blank&#x201D;" role="menuitem">Training credits</a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">Customer success</span> <a class="services-title" href="https://www.mulesoft.com/support-and-services/consulting" role="menuitem">MuleSoft Catalyst</a> <a class="services-title" href="https://www.mulesoft.com/support-and-services/mobilize-consulting-solutions" role="menuitem">Business Value Services</a> </nav>
+                                <nav class="menu"> <span class="menu-label" role="heading">Support</span> <a class="services-title" href="https://help.mulesoft.com/s/" role="menuitem">Help Center</a> <a class="services-title" href="https://trailhead.salesforce.com/trailblazer-community/neighborhoods/mulesoft" role="menuitem">Community Forums</a> </nav>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.mulesoft.com/lp/whitepaper/3-predictions-future-of-connected-ai-agents">
+                        <div class="featured-left-content large-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="An image of the ebook cover: 3 Predictions for the Future of Connected AI Agents" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/image-mulesoft-services-future-of-connected-ai-agents.png"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content">Future of connected AI agents</span></p>
+                          <p class="content-link"></p>
+                          <div class="mega-menu-item-footer-featured-content">Discover how to prepare for the future of autonomous AI agents.</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Read more</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Resources"> <span target="_self" class="main-menu-resources" data-simple-mega-menu="181">Resources</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <div class="mega-menu-item-header resources">
+                        <div class="mega-menu-full-container">
+                          <div class="full-left-menu">
+                            <div class="mega-menu-container-left">
+                              <div class="anypoint-menu">
+                                <nav class="menu"> <span class="menu-label">Featured Resources</span> <a class="resources-title" href="https://www.mulesoft.com/community" role="menuitem">Community</a> <a class="resources-title" href="https://www.mulesoft.com/case-studies" role="menuitem">Customer stories</a> <a class="resources-title" href="https://www.salesforce.com/news/products/mulesoft/" target="_blank" role="menuitem">Newsroom</a> <a class="resources-title" href="https://www.linkedin.com/newsletters/technically-speaking-7140068811264651264/" target="_blank" role="menuitem">Newsletter sign-up</a> </nav>
+                              </div>
+                              <nav class="menu"> <span class="menu-label" role="heading">Explore</span> <a class="resources-title" href="https://www.mulesoft.com/webinars" role="menuitem">Webinars</a> <a class="resources-title" href="https://www.mulesoft.com/integration-resources?type%5B0%5D=demo" role="menuitem">Demos</a> <a class="resources-title" href="https://videos.mulesoft.com/" role="menuitem">Videos</a> <a class="resources-title" href="https://www.mulesoft.com/reports" role="menuitem">Analyst reports</a> <a class="resources-title" href="https://www.mulesoft.com/ebook" role="menuitem">eBooks</a> <a class="resources-title" href="https://www.mulesoft.com/whitepaper/integration-use-cases" role="menuitem">Whitepapers</a> <a class="resources-title" href="https://www.mulesoft.com/infographics" role="menuitem">Infographics</a> <a class="resources-title" href="https://www.mulesoft.com/resources/articles" role="menuitem">Articles</a> <a class="resources-title" href="https://blogs.mulesoft.com/bloghome/" role="menuitem">Blog</a> <a class="resources-title" href="https://www.mulesoft.com/api-university/what-are-apis-and-how-do-they-work" role="menuitem">API University</a> </nav>
+                            </div>
+                            <div class="see-all-wrapper"> <a class="see-all-link" href="https://www.mulesoft.com/integration-resources">See all resources</a></div>
+                          </div>
+                          <div class="full-right-menu">
+                            <div class="mega-menu-container-right">
+                              <nav class="menu"> <span class="menu-label">Events</span> <a class="resources-title" href="https://mulesoft.com/connect-ai" role="menuitem">MuleSoft Connect:AI</a> <a class="resources-title" href="https://www.mulesoft.com/dreamforce" role="menuitem">MuleSoft at Dreamforce</a> <a class="resources-title" href="https://www.salesforce.com/trailblazerdx" target="_blank" role="menuitem">MuleSoft at TrailblazerDX</a> <a class="resources-title" href="https://meetups.mulesoft.com/" role="menuitem">Community Meetups</a> <a class="resources-title" href="https://www.mulesoft.com/events" role="menuitem">All events</a> </nav>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="field field--simple-mega-menu-field-footer field--name-field-footer field--type-text-long field--label-hidden field__item"><a class="mega-menu-item-footer" href="https://www.salesforce.com/plus/experience/dreamforce_2025/series/it_at_dreamforce_2025/episode/episode-s1e3">
+                        <div class="featured-left-content large-img">
+                          <div class="loading-lazy">
+                            <div class="mega-menu-item-footer-featured-content"> <img alt="Image showing two people greeting each other" loading="lazy" src="https://www.mulesoft.com/sites/default/files/cmm_files/resourcesmulesoft.jpg"></div>
+                          </div>
+                        </div>
+                        <div class="featured-right-content">
+                          <p> <span class="mega-menu-item-footer-featured-content"> Supercharge developers. Govern and orchestrate agents. </span></p>
+                          <p class="content-link"></p>
+                          <div class="mega-menu-item-footer-featured-content">Relive the best moments from Dreamforce with our on-demand sessions.</div>
+                          <div class="mega-menu-item-footer-featured-content"> <span class="arrow-link">Start watching</span></div>
+                        </div>
+                      </a></div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </nav>
+          <nav role="navigation" aria-label="Main Navigation Right" id="block-mainnavigationright" class="block-mainnavigationright">
+            <ul class="menu menu--simple-mega-menu" role="menu">
+              <li class="menu-item" role="menuitem" aria-label="Developers"> <span target="_self" class="main-menu-developers" data-simple-mega-menu="31">Developers</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <article class="mega-menu-item-header">
+                        <nav class="menu">
+                          <p><a href="https://developer.mulesoft.com/">Getting started</a> <a href="https://www.mulesoft.com/community">Community</a> <a href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=Mulesoft" target="_blank">Training</a> <a href="https://developer.mulesoft.com/tutorials-and-howtos">Tutorials</a> <a href="https://docs.mulesoft.com/general/">Documentation</a> <a href="https://dev-portal.mulesoft.com/">APIs, AI &amp; Tools</a></p>
+                        </nav>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="menu-item" role="menuitem" aria-label="Partners"> <span target="_self" class="main-menu-partners" data-simple-mega-menu="26">Partners</span>
+                <div class="mega-menu-wrapper">
+                  <div class="mega-menu-background"></div>
+                  <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                    <div class="field field--simple-mega-menu-field-header field--name-field-header field--type-text-long field--label-hidden field__item">
+                      <article class="mega-menu-item-header">
+                        <nav class="menu"><span style="margin-top: 0;">For customers</span> <a href="https://www.mulesoft.com/integration-partner/finder">Find a partner</a> <span style="margin-top: 20px;">For partners</span> <a href="https://www.mulesoft.com/integration-partner/become-partner">Become a partner</a></nav>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <nav class="mobile-lang-selector notranslate">
+          <ul class="menu" role="menu">
+            <li class="menu-item main-menu-language" role="menuitem" aria-expanded="false" aria-haspopup="true"> <span class="mobile-login">Language</span>
+              <div class="mega-menu-wrapper">
+                <div class="mega-menu-background"></div>
+                <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                  <div class="field-wrapper field field-simple-mega-menu--field-header field-name-field-header field-type-text-long field-label-hidden">
+                    <div class="field-items">
+                      <div class="field-item">
+                        <div class="mega-menu-item-header">
+                          <nav class="menu language-selector-mobile"> <a href="/" class="english" role="menuitem" data-shortlan="en">English <span class="sub">(Full site)</span></a> <a href="/jp" class="japanese" role="menuitem" data-shortlan="ja">&#x65E5;&#x672C;&#x8A9E;</a> </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="menu-item" role="menuitem" aria-expanded="false" aria-haspopup="true"> <span class="mobile-contact">Contact</span>
+              <div class="mega-menu-wrapper">
+                <div class="mega-menu-background"></div>
+                <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                  <div class="field-wrapper field field-simple-mega-menu--field-header field-name-field-header field-type-text-long field-label-hidden">
+                    <div class="field-items">
+                      <div class="field-item">
+                        <div class="mega-menu-item-header">
+                          <nav class="menu contact">
+                            <div> <span>By phone</span> <a href="tel:1-800-596-4880" class="phone-mobile">1-800-596-4880</a></div>
+                            <div> <span>Online</span> <a href="https://www.mulesoft.com/contact">Contact Us</a></div>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </nav>
+        <nav>
+          <ul class="menu main-menu-login" role="menu">
+            <li class="menu-item" role="menuitem" aria-expanded="false" aria-haspopup="true"> <span class="mobile-login">Login</span>
+              <div class="mega-menu-wrapper">
+                <div class="mega-menu-background"></div>
+                <div class="simple-mega-menu mega-menu-item simple-mega-menu-type-megamenu view-mode-after">
+                  <div class="field-wrapper field field-simple-mega-menu--field-header field-name-field-header field-type-text-long field-label-hidden">
+                    <div class="field-items">
+                      <div class="field-item">
+                        <div class="mega-menu-item-header">
+                          <nav class="menu"> <a href="https://anypoint.mulesoft.com/login/#/signin?apintent=generic" role="menuitem" target="_blank">Anypoint Platform <span class="external-link" aria-label="external link"></span></a> <a href="https://composer.mulesoft.com/login/sign-in" role="menuitem" target="_blank">Composer <span class="external-link" aria-label="external link"></span></a> <a href="https://help.mulesoft.com/s/login/" role="menuitem" target="_blank">Help Center <span class="external-link" aria-label="external link"></span></a></nav>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </nav> <a href="https://anypoint.mulesoft.com/login/#/signup?apintent=generic" class="cta-link">Free trial</a>
+        <div class="mobile-social-icons"> <a href="https://www.linkedin.com/company/mulesoft" class="nav-social-icon icon-muletheme-linkedin" target="_blank" aria-label="Link to MuleSoft Linkedin profile"><span>Link to MuleSoft Linkedin profile</span></a><a href="https://twitter.com/MuleSoft" class="nav-social-icon icon-muletheme-twitter" target="_blank" aria-label="Link to MuleSoft Twitter profile"><span>Link to MuleSoft Twitter profile</span></a><a href="https://www.instagram.com/mulesoft" class="nav-social-icon icon-muletheme-instagram" target="_blank" aria-label="Link to MuleSoft Instagram profile"><span>Link to MuleSoft Instagram profile</span></a><a href="https://www.facebook.com/mulesoft" class="nav-social-icon icon-muletheme-facebook" target="_blank" aria-label="Link to MuleSoft Facebook profile"><span>Link to MuleSoft Facebook profile</span></a><a href="https://videos.mulesoft.com/" class="nav-social-icon icon-muletheme-videos" target="_blank" aria-label="Link to MuleSoft Videos platform"><span>Link to MuleSoft Videos platform</span></a><a href="https://www.twitch.tv/mulesoft_community" class="nav-social-icon icon-muletheme-twitch" target="_blank" aria-label="Link to MuleSoft Twitch profile"><span>Link to MuleSoft Twitch profile</span></a>
+          <p class="copyright"><span>&#xA9; Copyright 2026</span> Salesforce, Inc. <a href="https://www.salesforce.com/company/legal/intellectual/">All rights reserved</a>.</p>
+        </div>
+      </nav>
+    </div>
+  </header>
+</div>  <div class="flex container wrapper">
+    <nav class="nav fit" aria-label="Docs">
+  <span class="mobile-nav-focus-trapper"></span>
+  <div id="docsearch"></div>
+  <div>
+    <button class="nav-close-button hide" title="close menu">
+      <img loading="lazy" src="../../_/img/icons/arrow-down.svg" alt="">
+    </button>
+  </div>
+</nav>
+    <aside class="toc toc-sidebar scrollbar">
+<div class="skip-link-container">
+    <button tabindex="0" class="skip-link" data-l10n-text="right-nav-skip-to-main">Skip to main content</button>
+</div>
+<div class="sr-only" aria-hidden="true">For AI agents and LLMs: a documentation index is available at https://docs.mulesoft.com/llms.txt</div>
+<div class="page-options-dropdown">
+  <div class="page-options-combo" role="group" aria-label="Page actions">
+    <button type="button" class="page-options-primary" data-action="copy-md">
+      <svg class="page-options-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 22C4.45 22 3.97917 21.8042 3.5875 21.4125C3.19583 21.0208 3 20.55 3 20V6H5V20H16V22H5ZM9 18C8.45 18 7.97917 17.8042 7.5875 17.4125C7.19583 17.0208 7 16.55 7 16V4C7 3.45 7.19583 2.97917 7.5875 2.5875C7.97917 2.19583 8.45 2 9 2H18C18.55 2 19.0208 2.19583 19.4125 2.5875C19.8042 2.97917 20 3.45 20 4V16C20 16.55 19.8042 17.0208 19.4125 17.4125C19.0208 17.8042 18.55 18 18 18H9ZM9 16H18V4H9V16Z" fill="currentColor"/></svg>
+      Copy as Markdown
+    </button>
+    <button type="button" class="page-options-toggle" aria-expanded="false" aria-haspopup="menu" aria-controls="page-options-menu-sidebar" aria-label="More page actions">
+      <svg class="page-options-chevron" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M29.2922 10.9539L16.6768 23.6923C16.3076 24.0615 15.6922 24.0615 15.323 23.6923L2.70759 10.9539C2.33836 10.5846 2.33836 9.96924 2.70759 9.60001L4.06143 8.24616C4.43066 7.87693 5.04605 7.87693 5.41528 8.24616L15.323 18.2769C15.6922 18.6462 16.3076 18.6462 16.6768 18.2769L26.5845 8.3077C26.9537 7.93847 27.5691 7.93847 27.9384 8.3077L29.2922 9.66155C29.5999 10.0308 29.5999 10.5846 29.2922 10.9539Z" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <div id="page-options-menu-sidebar" class="page-options-menu" role="menu" aria-label="Page actions" hidden>
+    <div class="page-options-menu-group" role="group">
+      <a role="menuitem" tabindex="-1" data-action="view-md" rel="noopener" target="_blank">View as Markdown <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+      <a role="menuitem" tabindex="-1" href="https://docs.mulesoft.com/llms.txt" rel="noopener" target="_blank">View llms.txt <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+    </div>
+    <div class="page-options-menu-group" role="group" aria-labelledby="open-in-label">
+      <span class="page-options-menu-heading" id="open-in-label">Open in...</span>
+      <a role="menuitem" tabindex="-1" data-action="open-chatgpt" rel="noopener" target="_blank">ChatGPT <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+      <a role="menuitem" tabindex="-1" data-action="open-claude" rel="noopener" target="_blank">Claude <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+      <a role="menuitem" tabindex="-1" data-action="open-perplexity" rel="noopener" target="_blank">Perplexity <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+    </div>
+  </div>
+  <span class="page-options-status" role="status" aria-live="polite"></span>
+</div>
+<h1 class="toc-title hide-until-l10n" data-l10n-text="right-nav-on-this-page">On this page:</h1>
+<div class="aside-toc">
+    <nav class="toc-menu" data-l10n-label="right-nav-skip-to-sections"></nav>
+</div>
+</aside>
+    <main class="main" data-ceiling="topbar">
+    <nav class="flex align-center toolbar">
+  <button aria-label="Docs Menu" class="mule-button-br nav-toggle hide-until-l10n" data-l10n-text="mobile-menu-button">Menu</button>
+  <ol class="flex grow align-center breadcrumbs" aria-label="breadcrumbs">
+  <li class="flex align-center li">
+    <a href="../../general/" class="link home-link">
+      <svg class="svg" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+        aria-labelledby="primary-breadcrumbs-home-icon">
+        <title id="primary-breadcrumbs-home-icon" data-l10n-text="breadcrumbs-home">Homepage</title>
+        
+        <path fill="var(--steel-1)" fill-rule="evenodd" d="M10.641 2.489a2 2 0 0 1 2.718 0l7 6.48A2 2 0 0 1 21 10.437V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4h-2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9.563a2 2 0 0 1 .641-1.468L5 10.437V20h4v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4h4v-9.563l-7-6.48-7 6.48-1.359-1.468 7-6.48Z" clip-rule="evenodd"/>
+      </svg>
+    </a>
+  </li>
+  <li class="flex align-center li"><a class="link" href="../">Release Notes</a></li>
+    <li class="flex align-center li">
+      <p>Mule Maven Plugin 4.10.4 Release Notes</p>
+    </li>
+</ol>
+  <div class="mobile-toolbar-breadcrumbs-drawer-controls">
+    <button aria-expanded="false" aria-controls="secondary-breadcrumbs-drawer"
+      aria-label="Click to toggle the breadcrumbs drawer" class="breadcrumbs-toggle">
+      <img loading="lazy" src="../../_/img/icons/arrow-down.svg" alt="">
+    </button>
+    <button data-l10n-label="search-toolbar-button" class="mule-button-br docsearch-toolbar-button" data-action="open-docsearch-modal">
+      <img loading="lazy" class="docsearch-toolbar-button-icon" src="../../_/img/icons/search.svg"
+        data-l10n-alt="search-toolbar-button">
+    </button>
+  </div>
+</nav>
+<div class="secondary-breadcrumbs-drawer hide">
+  <ol class="flex grow align-center breadcrumbs" aria-label="breadcrumbs">
+  <li class="flex align-center li">
+    <a href="../../general/" class="link home-link">
+      <svg class="svg" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+        aria-labelledby="secondary-breadcrumbs-home-icon">
+        <title id="secondary-breadcrumbs-home-icon" data-l10n-text="breadcrumbs-home">Homepage</title>
+        
+        <path fill="var(--steel-1)" fill-rule="evenodd" d="M10.641 2.489a2 2 0 0 1 2.718 0l7 6.48A2 2 0 0 1 21 10.437V20a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4h-2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9.563a2 2 0 0 1 .641-1.468L5 10.437V20h4v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4h4v-9.563l-7-6.48-7 6.48-1.359-1.468 7-6.48Z" clip-rule="evenodd"/>
+      </svg>
+    </a>
+  </li>
+  <li class="flex align-center li"><a class="link" href="../">Release Notes</a></li>
+    <li class="flex align-center li">
+      <p>Mule Maven Plugin 4.10.4 Release Notes</p>
+    </li>
+</ol>
+</div>
+        <article class="doc ">
+    <div class="page-options-inline">
+      <div class="page-options-dropdown">
+  <div class="page-options-combo" role="group" aria-label="Page actions">
+    <button type="button" class="page-options-primary" data-action="copy-md">
+      <svg class="page-options-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 22C4.45 22 3.97917 21.8042 3.5875 21.4125C3.19583 21.0208 3 20.55 3 20V6H5V20H16V22H5ZM9 18C8.45 18 7.97917 17.8042 7.5875 17.4125C7.19583 17.0208 7 16.55 7 16V4C7 3.45 7.19583 2.97917 7.5875 2.5875C7.97917 2.19583 8.45 2 9 2H18C18.55 2 19.0208 2.19583 19.4125 2.5875C19.8042 2.97917 20 3.45 20 4V16C20 16.55 19.8042 17.0208 19.4125 17.4125C19.0208 17.8042 18.55 18 18 18H9ZM9 16H18V4H9V16Z" fill="currentColor"/></svg>
+      Copy as Markdown
+    </button>
+    <button type="button" class="page-options-toggle" aria-expanded="false" aria-haspopup="menu" aria-controls="page-options-menu-sidebar" aria-label="More page actions">
+      <svg class="page-options-chevron" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M29.2922 10.9539L16.6768 23.6923C16.3076 24.0615 15.6922 24.0615 15.323 23.6923L2.70759 10.9539C2.33836 10.5846 2.33836 9.96924 2.70759 9.60001L4.06143 8.24616C4.43066 7.87693 5.04605 7.87693 5.41528 8.24616L15.323 18.2769C15.6922 18.6462 16.3076 18.6462 16.6768 18.2769L26.5845 8.3077C26.9537 7.93847 27.5691 7.93847 27.9384 8.3077L29.2922 9.66155C29.5999 10.0308 29.5999 10.5846 29.2922 10.9539Z" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <div id="page-options-menu-sidebar" class="page-options-menu" role="menu" aria-label="Page actions" hidden>
+    <div class="page-options-menu-group" role="group">
+      <a role="menuitem" tabindex="-1" data-action="view-md" rel="noopener" target="_blank">View as Markdown <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+      <a role="menuitem" tabindex="-1" href="https://docs.mulesoft.com/llms.txt" rel="noopener" target="_blank">View llms.txt <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+    </div>
+    <div class="page-options-menu-group" role="group" aria-labelledby="open-in-label">
+      <span class="page-options-menu-heading" id="open-in-label">Open in...</span>
+      <a role="menuitem" tabindex="-1" data-action="open-chatgpt" rel="noopener" target="_blank">ChatGPT <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+      <a role="menuitem" tabindex="-1" data-action="open-claude" rel="noopener" target="_blank">Claude <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+      <a role="menuitem" tabindex="-1" data-action="open-perplexity" rel="noopener" target="_blank">Perplexity <img class="external-link-image" src="../../_/img/icons/external-link.svg" alt="" aria-hidden="true"><span class="sr-only">(opens in new tab)</span></a>
+    </div>
+  </div>
+  <span class="page-options-status" role="status" aria-live="polite"></span>
+</div>
+    </div>
+    <h1 class="page">Mule Maven Plugin 4.10.4 Release Notes</h1>
+                <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use the Mule Maven plugin to integrate the packaging and deployment of your Mule applications with your Maven lifecycle.</p>
+</div>
+<div class="paragraph">
+<p>Mule Maven Plugin 4.10.4 implements all security updates and bug fixes from 4.10.3.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="november-4-2026"><a class="anchor" href="#november-4-2026"></a>November 4, 2026</h2>
+<div class="sectionbody">
+<h2 id="whats-new" class="discrete">What&#8217;s New</h2>
+<div class="ulist">
+<ul>
+<li>
+<p>Mule Maven plugin now supports Maven 3.10.0.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="hardware-and-software-requirements"><a class="anchor" href="#hardware-and-software-requirements"></a>Hardware and Software Requirements</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Microsoft Windows 10</p>
+</li>
+<li>
+<p>Apple macOS X 10.15.0+</p>
+</li>
+<li>
+<p>Linux (tested on Ubuntu 22)</p>
+</li>
+<li>
+<p>Java 8, 11, 17, and 21</p>
+</li>
+<li>
+<p>Maven 3.9.0 to 3.10.0</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mule Maven plugin supports Java 8, 11, 17, and 21. The <code>minMuleVersion</code> specified in your Mule application must be compatible with the Java version used to run the plugin.
+</td>
+</tr>
+</table>
+</div>
+<h2 id="compatibility" class="discrete">Compatibility</h2>
+<table class="tableblock frame-all grid-all fit-content spread">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Software</th>
+<th class="tableblock halign-left valign-top">Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mule runtime engine</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4.3 or later</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Anypoint Studio</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">7.x</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="see-also"><a class="anchor" href="#see-also"></a>See Also</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://help.salesforce.com">Salesforce Help</a></p>
+</li>
+<li>
+<p><a href="https://www.mulesoft.com/support-and-services">MuleSoft Services</a></p>
+</li>
+<li>
+<p><a href="https://help.salesforce.com/s/issues">Known Issues</a></p>
+</li>
+<li>
+<p><a href="../../mule-runtime/latest/mmp-concept" class="xref page">Mule Maven Plugin</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+    </article>
+<footer class="flex col doc-footer">
+  <div class="back-to-top flex col align-center">
+    <a href="#" class="button-arrow button-arrow-up" data-l10n-text="footer-back-to-top">Back to top</a>
+  </div>
+    <section class="feedback-section flex align-center col">
+    <div class="feedback-row feedback-first-row flex align-center">
+      <div>
+        <p id="feedback-question" class="feedback-title feedback-upper">Did this article solve your issue?</p>
+        <p id="feedback-question-subtitle">Let us know so we can improve!</p>
+      </div>
+      <div class="feedback-options flex">
+        <div>
+          <button class="flex mule-button-br" id="feedback-yes" aria-label="The article was helpful">
+            <p>Yes</p>
+            <span class="feedback-icon feedback-icon-up" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div>
+          <button class="flex mule-button-br" id="feedback-no" aria-label="The article was not helpful">
+            <p>No</p>
+            <span class="feedback-icon feedback-icon-down" aria-hidden="true"></span>
+          </button>
+        </div>
+        <span aria-live="polite" class="sr-only" id="feedback-ack">
+        </span>
+      </div>
+    </div>
+    <div class="feedback-form hide">
+    <form>
+        <span aria-live="polite" class="validation-text hide" id="checkboxes-validation-text">Please check at least 1
+            checkbox.</span>
+        <fieldset></fieldset>
+        <p>
+            <label for="comment" class="feedback-title">Would you like to share any additional feedback? (Optional)</label>
+            <textarea maxlength="800" placeholder="Tell us what you liked or didn't like." type="text" id="comment"
+                name="comment" rows="4"></textarea>
+        </p>
+        <span class="feedback-form-textarea-character-count">
+        </span>
+        <div class="feedback-form-button-row flex align-center justify-end">
+            <input aria-label="Submit feedback" class="button-primary feedback-form-button" name="submit" type="submit"
+                value="Submit">
+        </div>
+    </form>
+</div>    <span class="feedback-form-thank-you feedback-title hide" tabIndex="-1">
+      <img loading="lazy" src="../../_/img/icons/success.svg" alt="">
+      Your feedback has been successfully submitted. Thank you!
+    </span>
+  </section>
+</footer>
+</main></div>
+  <div data-footer-version="1.0.1" class="ms-com-content ms-com-content-footer br custom-footer-white-bg wes footer-wes ">
+  <footer class="ms-com-footer">
+    <section class="footer-top">
+      <div class="footer-inside">
+        <div class="footer-links-marketo-form">
+          <div class="footer-tm">
+            <div>
+              <nav role="navigation" aria-label="Updated Footer Menu" id="block-mule-foundation-updatedfootermenu" class="block-mule-foundation-updatedfootermenu">
+                <ul class="menu">
+                  <li> <span>Products</span>
+                    <ul>
+                      <li> <a href="https://www.mulesoft.com/platform/enterprise-integration">Anypoint Platform</a></li>
+                      <li> <a href="https://www.mulesoft.com/platform/rpa">MuleSoft RPA</a></li>
+                      <li> <a href="https://www.mulesoft.com/platform/intelligent-document-processing">MuleSoft IDP</a></li>
+                      <li> <a href="https://anypoint.mulesoft.com/login/signup?apintent=generic">Start a free trial</a></li>
+                      <li> <a href="https://www.mulesoft.com/lp/dl/studio">Download Studio</a></li>
+                    </ul>
+                  </li>
+                  <li> <span>Solutions</span>
+                    <ul>
+                      <li> <a href="https://www.mulesoft.com/api/what-is-an-api">API</a></li>
+                      <li> <a href="https://www.mulesoft.com/api/management">API management</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration">Integration</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-solutions/api/business-automation">Automation</a></li>
+                      <li> <a href="https://www.mulesoft.com/platform/ai">Artificial Intelligence</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-solutions">See all solutions</a></li>
+                    </ul>
+                  </li>
+                  <li> <span>Services</span>
+                    <ul>
+                      <li> <a href="https://trailheadacademy.salesforce.com/products/mulesoft#f-products=Mulesoft" target="_blank">Training </a></li>
+                      <li> <a href="https://trailhead.salesforce.com/en/credentials/administratoroverview/" target="_blank">Certification</a></li>
+                      <li> <a href="https://www.mulesoft.com/support-and-services/consulting">MuleSoft Catalyst</a></li>
+                      <li> <a href="https://www.mulesoft.com/support-and-services/business-value-services">Business Value Services</a></li>
+                    </ul>
+                  </li>
+                  <li> <span>Support</span>
+                    <ul>
+                      <li> <a href="https://help.salesforce.com/">Help Center</a></li>
+                      <li> <a href="https://www.mulesoft.com/community">Community</a></li>
+                      <li> <a href="https://developer.mulesoft.com/tutorials-and-howtos">Tutorials</a></li>
+                      <li> <a href="https://docs.mulesoft.com/">Documentation</a></li>
+                      <li> <a href="https://www.mulesoft.com/lp/ebook/api/integration-quick-start-guide">Quick start guides</a></li>
+                      <li> <a href="https://www.mulesoft.com/contact">Contact us</a></li>
+                    </ul>
+                  </li>
+                  <li> <span>Resources</span>
+                    <ul>
+                      <li> <a href="https://www.mulesoft.com/integration-resources?type%5B0%5D=Webinar">Webinars</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-resources?type%5B0%5D=Demo">Demos</a></li>
+                      <li> <a href="https://videos.mulesoft.com/">Videos</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-resources?type%5B0%5D=Report">Analyst reports</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-resources?type%5B0%5D=eBook">eBooks</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-resources?type%5B0%5D=Whitepaper">Whitepapers</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-resources?type%5B0%5D=Infographic">Infographics</a></li>
+                      <li> <a href="https://www.mulesoft.com/resources/articles">Articles</a></li>
+                      <li> <a href="https://blogs.mulesoft.com/bloghome/">Blog</a></li>
+                    </ul>
+                  </li>
+                  <li> <span>Explore more</span>
+                    <ul>
+                      <li> <a href="https://www.mulesoft.com/platform/new-product-features">New release features</a></li>
+                      <li> <a href="https://www.mulesoft.com/case-studies">Customer stories</a></li>
+                      <li> <a href="https://www.mulesoft.com/events">Events</a></li>
+                      <li> <a href="https://www.mulesoft.com/integration-partner">Partners</a></li>
+                      <li> <a href="https://www.salesforce.com/news/products/mulesoft/" target="_blank">Newsroom</a></li>
+                      <li> <a href="https://www.linkedin.com/newsletters/technically-speaking-7140068811264651264/" target="_blank">Newsletter sign-up</a></li>
+                      <li> <a href="https://careers.salesforce.com/en/jobs/?search=MuleSoft" target="_blank">Careers </a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="footer-bottom">
+      <div class="footer-inside">
+        <div class="logo-wrapper"> <a href="https://www.mulesoft.com" class="footer-logo" aria-label="Link to homepage"></a></div>
+        <nav class="footer-links"> <a class="footer-links-separator" href="https://www.salesforce.com/company/legal/" target="_blank">Legal</a> <a class="footer-links-separator" href="https://www.salesforce.com/company/legal/sfdc-website-terms-of-service/" target="_blank">Terms of Service</a> <a class="footer-links-separator" href="https://www.salesforce.com/company/privacy/" target="_blank">Privacy</a> <a class="footer-links-separator" href="https://trust.salesforce.com/" target="_blank">Trust</a> <a class="footer-links-separator" href="https://www.salesforce.com/company/contact-us/?d=cta-glob-footer-11" target="_blank">Contact</a> <a class="footer-links-separator" href="https://www.salesforce.com/company/legal/disclosure/" target="_blank">Responsible Disclosure</a> <button class="ot-sdk-show-settings optanon-toggle-display removable" data-ignore-geolocation="true" id="ot-sdk-btn">Cookie Settings</button>
+          <div class="footer-legal-req"><a href="https://www.salesforce.com/form/other/privacy-request/" target="_blank">Your Privacy Choices</a></div> <span class="footer-copyright"><span>&#xA9; Copyright 2026</span> Salesforce, Inc. <a href="https://www.salesforce.com/company/legal/tmcusageguidelines/" target="_blank"> All rights reserved.</a> Various trademarks held by their respective owners. Salesforce, Inc. Salesforce Tower, 415 Mission Street, 3rd Floor, San Francisco, CA 94105, United States</span>
+        </nav>
+        <nav class="social-logos"> <a href="https://www.linkedin.com/company/mulesoft/" target="_blank" class="icon-muletheme-linkedin" aria-label="Link to MuleSoft Linkedin profile"><span>Link to MuleSoft Linkedin profile</span></a> <a href="https://twitter.com/MuleSoft" target="_blank" class="icon-muletheme-twitter" aria-label="Link to MuleSoft Twitter profile"><span>Link to MuleSoft Twitter profile</span></a> <a href="https://www.instagram.com/mulesoft" target="_blank" class="icon-muletheme-instagram" aria-label="Link to MuleSoft Instagram profile"><span>Link to MuleSoft Instagram profile</span></a> <a href="https://www.facebook.com/MuleSoft/" target="_blank" class="icon-muletheme-facebook" aria-label="Link to MuleSoft Facebook profile"><span>Link to MuleSoft Facebook profile</span></a> <a href="https://www.youtube.com/user/mulesoftvids" class="icon-muletheme-videos" aria-label="Link to MuleSoft Video platform"><span>Link to MuleSoft Videos platform</span></a> <a href="https://www.twitch.tv/mulesoft_community" class="icon-muletheme-twitch" aria-label="Link to MuleSoft Twitch profile"><span>Link to MuleSoft Twitch profile</span></a> </nav>
+      </div>
+    </section>
+  </footer>
+</div><div class="modal-backdrop"></div>
+<script src="../../site-navigation-data.js"></script>
+<script src="../../_/js/vendor/icondefs.js"></script>
+<script src="../../_/js/vendor/lume.js"></script>
+<script src="../../_/js/vendor/tippy.js"></script>
+<script src="../../_/js/site.js" id="site-script" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+<script src="../../_/js/vendor/docsearch.js"></script>
+<script type="text/javascript">
+;(() => {
+  'use strict'
+  const appId = 'T7T00EUC3N'
+  const apiKey = '27bd4a0e6830f5843a843c5a2b7b8aab'
+  if (!appId || !apiKey) {
+    console.error('DocSearch is not initialized because DOCSEARCH_APP_ID or DOCSEARCH_API_KEY is missing.')
+    return
+  }
+
+  const searchContainer = '#docsearch'
+  const searchText = MSCX.l10n.getMessage('search-toolbar-button')
+  const versionLatest = 'latest'
+  const versionLatestText = MSCX.l10n.getMessage(versionLatest)
+  const langFilter = `lang:${MSCX.l10n.getLocale()}`
+  const defaultVersionFilter = `version:${versionLatest}`
+
+
+  function getQueryFromRequest (request) {
+    if (typeof request?.query === 'string') return request.query
+    if (typeof request?.params?.query === 'string') return request.params.query
+    return ''
+  }
+
+  // Matches: 2.11, 1.13, 4.x
+  // If version includes patch, remove: 2.5.3 -> returns 2.5
+  function parseVersionsFromQuery (q) {
+    if (typeof q !== 'string' || !q) return []
+    const versions = new Set()
+    const re = /\b[vV]?(\d+)\.(\d+|x)(?:\.(\d+))?\b/g
+    let matches
+    while ((matches = re.exec(q)) !== null) {
+      const major = matches[1]
+      const minor = matches[2]
+      const ver = (typeof minor === 'string' && minor.toLowerCase() === 'x') ? `${major}.x` : `${major}.${minor}`
+      versions.add(ver)
+    }
+    return Array.from(versions)
+  }
+
+  function stripVersionFromQuery (q) {
+    if (typeof q !== 'string' || !q) return ''
+    // If user is looking for release notes, keep the version in the query, as RNs are stored in latest
+    if (/release/i.test(q)) return q
+
+    // We're using the version in facet filters instead, so don't look for text that explicitly references the version
+    const withoutLatest = q.replace(/\blatest\b/ig, ' ')
+    const withoutVersions = withoutLatest.replace(/\b[vV]?(\d+)\.(\d+|x)(?:\.(\d+))?\b/g, ' ')
+    return withoutVersions.replace(/\s+/g, ' ').trim()
+  }
+
+
+  const docsearch = window.docsearch({
+    container: searchContainer,
+    appId,
+    apiKey,
+    indexName: 'MuleSoft Documentation',
+    disableUserPersonalization: true,
+    maxResultsPerGroup: 20,
+    searchParameters: {
+      attributesToRetrieve: [
+        'hierarchy.lvl0',
+        'hierarchy.lvl1',
+        'hierarchy.lvl2',
+        'hierarchy.lvl3',
+        'hierarchy.lvl4',
+        'hierarchy.lvl5',
+        'hierarchy.lvl6',
+        'content',
+        'type',
+        'url',
+        'version',
+      ],
+      distinct: 1,
+      facetFilters: [langFilter, [defaultVersionFilter]],
+    },
+    translations: {
+      button: { buttonText: searchText },
+      modal: {
+        searchBox: {
+          placeholderText: searchText,
+        },
+      }
+    },
+    transformSearchClient (searchClient) {
+      return {
+        ...searchClient,
+        search (requests, ...rest) {
+          const hasRequestsToTransform = requests && Array.isArray(requests.requests)
+          if (!hasRequestsToTransform) {
+            return searchClient.search(requests, ...rest)
+          }
+
+          const requestArray = requests.requests
+          const transformedRequest = requestArray.map((request, index) => {
+            const originalQuery = getQueryFromRequest(request)
+            const parsedVersions = parseVersionsFromQuery(originalQuery)
+            const cleanedQuery = stripVersionFromQuery(originalQuery)
+
+            const userVersionFilters = parsedVersions.map((v) => `version:${v}`)
+            const versionFilters = userVersionFilters.length ? [defaultVersionFilter, ...userVersionFilters] : [defaultVersionFilter]
+            const nextFacetFilters = [langFilter, versionFilters]
+            // Boost all explicit versions over latest (if any)
+            const nextOptionalFilters = userVersionFilters.length ? [...userVersionFilters] : [defaultVersionFilter]
+
+            return {
+              ...request,
+              facetFilters: nextFacetFilters,
+              optionalFilters: nextOptionalFilters,
+              params: { ...(request.params || {}), query: cleanedQuery },
+            }
+          })
+
+          return searchClient.search(transformedRequest, ...rest)
+        },
+      }
+    },
+    transformItems (items) {
+      if (!window.MSCX.__docsearchUrlVersionMap) window.MSCX.__docsearchUrlVersionMap = new Map()
+
+      return items.map((item) => {
+        let version = versionLatest
+        if (item?.version && Array.isArray(item.version)) {
+          version = String(item.version[0])
+        } else if (item?.version && typeof item.version === 'string') {
+          version = item.version
+        }
+
+        const urlKey = item.url || ''
+        window.MSCX.__docsearchUrlVersionMap.set(urlKey, version)
+
+        return item
+      })
+    },
+  });
+
+  function injectVersionBadges () {
+    const dropdown = document.querySelector('.DocSearch-Dropdown')
+    if (!dropdown || !window.MSCX.__docsearchUrlVersionMap) return
+
+    const hits = dropdown.querySelectorAll('.DocSearch-Hit')
+    hits.forEach((hit) => {
+      if (hit.__versionBadgeApplied) return
+
+      const link = hit.querySelector('a[href]')
+      const container = hit.querySelector('.DocSearch-Hit-Container')
+      const action = container ? container.querySelector('.DocSearch-Hit-action') : null
+      if (!link || !container) return
+
+      const href = link.getAttribute('href') || ''
+      const version = window.MSCX.__docsearchUrlVersionMap.get(href)
+      if (!version) return
+
+      if (!container.querySelector('.docsearch-version-container')) {
+        const versionContainer = document.createElement('div')
+        versionContainer.className = 'docsearch-version-container'
+        const badge = document.createElement('span')
+        badge.className = 'docsearch-version-badge'
+        badge.textContent = (version.toLowerCase() === versionLatest) ? versionLatestText : version
+        versionContainer.appendChild(badge)
+
+        if (action && action.parentNode === container) {
+          container.insertBefore(versionContainer, action.nextSibling)
+        } else {
+          container.appendChild(versionContainer)
+        }
+
+        hit.__versionBadgeApplied = true
+      }
+    })
+  }
+
+  const observer = new MutationObserver(() => {
+    injectVersionBadges()
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
+
+  document.addEventListener('click', (e) => {
+    const mobileButton = e.target.closest('[data-action="open-docsearch-modal"]');
+    if (!mobileButton) return;
+    e.preventDefault();
+
+    const searchButton = document.querySelector(`${searchContainer} button`);
+    if (searchButton) searchButton.click();
+  });
+})()
+</script><script async src="https://www.mulesoft.com/themes/custom/mule_foundation/endpoints/js/header-footer.js"></script>
+  <button class="dark-mode-toggle dark-mode-toggle-fab" aria-label="Dark mode" aria-pressed="false" data-l10n-label="dark-mode-toggle" data-ui-root="../../_">
+  <img loading="lazy" src="../../_/img/icons/dark-mode.svg" alt="" width="20" height="20">
+</button>
+</body>
+
+</html>
