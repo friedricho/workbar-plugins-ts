@@ -1,0 +1,8 @@
+{
+  "id": "g4",
+  "name": "Guide Four",
+  "polls": [
+    {"id": 12345, "question": "Numeric poll id", "idResponses": {"c1": "Choice"}},
+    {"id": "p2", "name": "Name-only question", "idResponses": [{"id": 9, "value": "Numeric choice"}]}
+  ]
+}

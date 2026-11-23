@@ -1,0 +1,9 @@
+{
+  "id": "g2",
+  "name": "Guide Two",
+  "polls": [
+    {"id": "p1", "question": "Pick one", "idResponses": {"c1": "First", "c2": "Second"}},
+    {"id": "p2", "question": "Nested labels", "responses": {"c1": {"text": "Nested label"}, "c2": {"label": "Other label"}}},
+    {"id": "p3", "question": "Empty", "responses": {}}
+  ]
+}

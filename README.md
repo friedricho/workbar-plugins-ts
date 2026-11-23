@@ -8,8 +8,8 @@ host loads.
 | Plugin | Id | Status |
 | --- | --- | --- |
 | Workato Changelog | `workatochangelog` | Ported (phase 5) |
-| MuleSoft Changelog | `mulesoftchangelog` | Phase 5 |
-| Autopilot Pendo Feedback | `pendofeedback` | Phase 5 |
+| MuleSoft Changelog | `mulesoftchangelog` | Ported (phase 5) |
+| Autopilot Pendo Feedback | `pendofeedback` | Ported (phase 5) |
 | AI Gateway Budget | `boomibudget` | Ported (phase 5) |
 | Obsidian Quick Capture | `quickcapture` | Phase 6 |
 | Audio Fix | `audiofix` | Phase 7 (macOS only) |
