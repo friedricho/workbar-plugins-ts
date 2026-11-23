@@ -1,0 +1,22 @@
+{
+  "id": "g1",
+  "name": "Guide One",
+  "polls": [
+    {
+      "id": "p1",
+      "question": "How useful?",
+      "idResponses": [
+        {"id": "c1", "label": "Very useful"},
+        {"id": "c2", "label": "Somewhat"}
+      ]
+    },
+    {
+      "id": "p2",
+      "title": "Second poll",
+      "responses": [
+        {"responseId": "x", "text": "Yes"},
+        {"responseId": "y", "value": "No"}
+      ]
+    }
+  ]
+}

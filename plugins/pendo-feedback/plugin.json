@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "id": "pendofeedback",
+  "name": "Autopilot Pendo Feedback",
+  "version": "2.0.0",
+  "minimumSDK": "3.0.0",
+  "main": "dist/index.mjs",
+  "platforms": ["darwin", "win32", "linux"],
+  "menuOrder": 3
+}
