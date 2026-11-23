@@ -26,7 +26,7 @@ cd workbar-plugins-ts
 pnpm install
 pnpm typecheck && pnpm test
 pnpm build          # writes plugins/*/dist/index.mjs
-pnpm pack           # also writes dist/<id>-<version>.workbarplugin zips
+pnpm run pack       # also writes dist/<id>-<version>.workbarplugin zips
 ```
 
 Point somewhere else with `WORKBAR_ELECTRON_DIR=/path/to/workbar-electron`.
