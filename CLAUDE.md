@@ -36,6 +36,11 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   tool; Workato Changelog ported (57 tests; live scrape verified through the
   CLI). Needs the WORKBAR_ELECTRON_TOKEN secret for CI. Next: MuleSoft
   Changelog, Pendo Feedback, AI Gateway Budget.
+- 2026-11-23 — MuleSoft Changelog ported (PR #2; 85 tests incl. the shared
+  ones; live run through the host + CLI with capped page limits: index
+  phase, history walk and incremental run all verified). Health now
+  refreshes "next run" after the host re-plans (the same fix went into
+  Workato, PR #1). Next: Pendo Feedback, AI Gateway Budget.
 - 2026-11-23 — Pendo Feedback ported (PR #3; 64 tests incl. shared; golden
   reports byte-exact; fingerprints pinned against the Swift basis). Needs
   workbar-electron PR #6 (path fields with pick: 'save') for the output-file
