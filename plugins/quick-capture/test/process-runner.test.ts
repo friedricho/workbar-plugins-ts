@@ -24,7 +24,8 @@ describe('nodeProcessRunner', () => {
   });
 
   it('a very large argument (like insert.js + a card) is delivered intact', async () => {
-    const arg = 'x'.repeat(60_000) + '✨';
+    // Windows caps the whole command line at ~32,767 chars; insert.js + a card is ~10 KB, so 20k still covers it there.
+    const arg = 'x'.repeat(process.platform === 'win32' ? 20_000 : 60_000) + '✨';
     const r = await nodeProcessRunner.run(node, ['-e', 'process.stdout.write(String(process.argv[1].length))', arg], env, 10_000);
     expect(r.stdout).toBe(String(arg.length));
   });
