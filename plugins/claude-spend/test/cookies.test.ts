@@ -145,7 +145,8 @@ describe('SessionCookieProvider', () => {
     expect(residue()).toEqual([]);
   });
 
-  it('the temp dir is private (0700) while it exists', async () => {
+  // Unix file modes don't exist on Windows.
+  it.skipIf(process.platform === 'win32')('the temp dir is private (0700) while it exists', async () => {
     const scratch = tmp();
     let seen = -1;
     const file = makeDatabase([{ hostKey: 'claude.ai', name: 'a', plain: 'b', encrypted: true, withDigest: true }]);
@@ -183,7 +184,8 @@ describe('SessionCookieProvider', () => {
     }
   });
 
-  describe('the Keychain read (stub executables: the real Keychain is never touched)', () => {
+  // The stubs are sh scripts, and the Keychain is macOS-only anyway.
+  describe.skipIf(process.platform === 'win32')('the Keychain read (stub executables: the real Keychain is never touched)', () => {
     /** An executable sh script; its argv is written to `<dir>/args` so the call shape can be checked. */
     const stub = (body: string) => {
       const dir = tmp(); const file = path.join(dir, 'security');

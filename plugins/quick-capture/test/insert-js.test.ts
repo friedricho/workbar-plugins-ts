@@ -17,7 +17,8 @@ describe('insert.js', () => {
     const result = await new Promise<{ code: number | null; out: string }>(resolve =>
       execFile(process.execPath, ['--test', path.join(here, 'insert.test.mjs')], { timeout: 60_000 }, (err, stdout, stderr) =>
         resolve({ code: err ? ((err as { code?: number }).code ?? 1) : 0, out: String(stdout) + String(stderr) })));
-    expect(result.out).toMatch(/# fail 0/);
+    // Node's reporter prints "# fail 0" (TAP) or "ℹ fail 0" (spec), depending on version and TTY.
+    expect(result.out).toMatch(/(?:#|ℹ) fail 0\b/);
     expect(result.code).toBe(0);
   });
 });
