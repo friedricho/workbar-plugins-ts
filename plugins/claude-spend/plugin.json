@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "id": "claudespend",
+  "name": "Claude Spend",
+  "version": "2.0.0",
+  "minimumSDK": "3.0.0",
+  "main": "dist/index.mjs",
+  "platforms": ["darwin"],
+  "menuOrder": 7
+}
