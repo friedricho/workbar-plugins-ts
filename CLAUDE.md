@@ -14,6 +14,8 @@ checks) and the parts of the plan those need.
   copied byte-exact from the Swift repo).
 - `shared/` — helpers bundled into plugins (atomic vault writes).
 - `tools/build.mjs` — esbuild bundles each plugin (`--pack` zips it).
+- `tools/build-helpers.mjs` — builds `plugins/<name>/helper/` (Swift, macOS only)
+  into `bin/` as a universal, ad-hoc-signed binary; `pnpm pack` runs it first.
 - The SDK is imported from `../workbar-electron/packages/sdk/src` (side by
   side; `WORKBAR_ELECTRON_DIR` overrides).
 
@@ -58,6 +60,14 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   phase 0 run first).
 - 2026-11-23 — PRs #1–#4 merged into main (all four phase 5 plugins).
   Next work moves to the Mac; see workbar-electron/docs/HANDOFF.md.
+- 2026-11-23 — Audio Fix ported (plugin `audiofix`, darwin only). The
+  CoreAudio listener and format toggle are a Swift helper (`helper/`, JSON
+  lines, protocol in `src/protocol.ts`); settle delay, recency guard and the
+  2 s/5 s retry schedule are TypeScript (`RepairGate` tests ported case for
+  case + plugin tests with a fake helper; mutation-checked). Verified on the
+  Mac: the owner installed the package in the packaged app and a real repair
+  of the monitor worked (exit criterion met). Build with `pnpm run pack`
+  (plain `pnpm pack` is pnpm's own command).
 - 2026-11-23 — Claude Spend ported (plugin `claudespend`, darwin only; Windows
   later: DPAPI + paste-a-cookie fallback). Chromium crypto in `cookie-crypt.ts`
   pinned with independent vectors (python hashlib PBKDF2, `openssl enc` AES,

@@ -34,6 +34,8 @@ for (const name of fs.readdirSync(pluginsDir).sort()) {
   if (pack) {
     const out = path.join(dir, 'dist', `${manifest.id}-${manifest.version}.workbarplugin`);
     fs.rmSync(out, { force: true });
+    // A plugin that declares native helpers must ship them: a package without bin/ would install and then fail at first use.
+    if (manifest.helpers && !fs.existsSync(path.join(dir, 'bin'))) throw new Error(`${name}: plugin.json declares helpers but bin/ is missing (run pnpm build:helpers on macOS)`);
     const files = ['plugin.json', 'dist/index.mjs', ...['views', 'bin'].filter(d => fs.existsSync(path.join(dir, d)))];
     execFileSync('zip', ['-qr', out, ...files], { cwd: dir });
     console.log(`packed ${path.relative(repoRoot, out)}`);

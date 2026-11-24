@@ -59,3 +59,10 @@ jobs:
       - name: Build plugins
         working-directory: workbar-plugins-ts
         run: pnpm build
+
+      # Swift helpers (Audio Fix's CoreAudio helper) build on macOS only; the
+      # pack step then proves the package really carries its bin/.
+      - name: Build native helpers and pack
+        if: runner.os == 'macOS'
+        working-directory: workbar-plugins-ts
+        run: pnpm run pack

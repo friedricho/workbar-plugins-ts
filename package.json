@@ -9,9 +9,10 @@
   },
   "scripts": {
     "build": "node tools/build.mjs",
-    "pack": "node tools/build.mjs --pack",
+    "pack": "node tools/build-helpers.mjs && node tools/build.mjs --pack",
     "typecheck": "tsc --noEmit -p .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:helpers": "node tools/build-helpers.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
