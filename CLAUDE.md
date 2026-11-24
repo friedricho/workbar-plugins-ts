@@ -106,3 +106,17 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   Claude Spend are 2.0.1 with `minimumSDK` 3.2.0 (a saved Hourly schedule needs it).
   Installed on the Mac. There, Gateway Budget already had an imported `schedule.spec`
   (every 1 hour), so the 300 s legacy value was not migrated: the owner sets it in Settings.
+- 2026-11-24 — Audio Fix 2.1.0 (branch `claude/budget-schedule`, uncommitted): the
+  stream went stuck with NO device-list change and no sleep (log + `pmset` verified),
+  so repairs now also run proactively: an idle pass every 5 minutes via a new helper
+  `repairIfIdle` command (`kAudioDevicePropertyDeviceIsRunningSomewhere` gate — never
+  touches playing audio, does not feed the 10 s gate), and a play-start backstop via a
+  per-target activity listener in the helper (`targetActive`, ≥ 10 min since any repair,
+  toggle `repairOnPlayback` — the owner accepted a ~1 s blip at playback start). The
+  helper's `watch` takes nameQuery/uid and re-attaches the activity listener on every
+  devicesChanged; a crashed helper's listeners are re-armed in the restart path (latent
+  bug: they used to be lost). Settings keys `repairWhileIdle`/`repairOnPlayback`, both
+  default on; 8 new plugin tests + protocol tests; helper smoke-tested live (`repairIfIdle`
+  answered `busy` while an app held the monitor). Still to do: install
+  `dist/audiofix-2.1.0.workbarplugin` in the packaged app and watch the log for idle
+  repairs and the play-start blip.

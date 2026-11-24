@@ -1,15 +1,17 @@
 // The Swift AudioFixPluginTests wiring cases, plus the behavior that moved
-// from the Swift watcher into TypeScript (settle, guard, retries) and the new
-// helper boundary. A scripted fake helper stands in for CoreAudio.
+// from the Swift watcher into TypeScript (settle, guard, retries), the new
+// helper boundary, and the proactive triggers (idle repair, play-start
+// backstop). A scripted fake helper stands in for CoreAudio.
 import { describe, expect, it } from 'vitest';
 import { createTestContext, type TestContext } from '@workbar/sdk/testing';
 import { validateSettingsSchema } from '@workbar/sdk';
-import { AUTO_REPAIR_KEY, createAudioFix, DEVICE_NAME_KEY, DEVICE_UID_KEY, settingsSchema } from '../src/index.js';
+import { AUTO_REPAIR_KEY, createAudioFix, DEVICE_NAME_KEY, DEVICE_UID_KEY, PLAY_GUARD_MS, REPAIR_ON_PLAYBACK_KEY, REPAIR_WHILE_IDLE_KEY, settingsSchema } from '../src/index.js';
 
 type Sent = { cmd: string; id?: number; nameQuery?: string; uid?: string };
 type Plugin = ReturnType<typeof createAudioFix>;
 
-/** A fake helper: records commands; `script` decides the reply to each repair. */
+/** A fake helper: records commands; `script` decides the reply to each repair
+ *  (both `repair` and `repairIfIdle`). */
 function fakeHelper(plugin: Plugin, script: (n: number) => Record<string, unknown> | 'silent') {
   const sent: Sent[] = [];
   let repairs = 0; let starts = 0; let stops = 0; let broken = false;
@@ -21,7 +23,7 @@ function fakeHelper(plugin: Plugin, script: (n: number) => Record<string, unknow
         send: async (m: unknown) => {
           if (broken) throw new Error('helper is not running');
           const c = m as Sent; sent.push(c);
-          if (c.cmd === 'repair') {
+          if (c.cmd === 'repair' || c.cmd === 'repairIfIdle') {
             const r = script(++repairs);
             if (r !== 'silent') queueMicrotask(() => void plugin.onHelperMessage!('audiofix', { id: c.id, ...r }));
           } else if (c.cmd === 'list') {
@@ -38,20 +40,28 @@ function fakeHelper(plugin: Plugin, script: (n: number) => Record<string, unknow
 const OK = { status: 'repaired', device: 'S2725QC [AB:1]', format: '2ch 24-bit 48000 Hz (lpcm)' };
 const FAIL = { status: 'failed', message: 'CoreAudio failed while setting the requested format (OSStatus 1)' };
 const ABSENT = { status: 'absent', message: 'No output device matched "S2725QC".' };
+const BUSY = { status: 'busy' };
 
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 const tick = () => new Promise<void>(r => setTimeout(r, 0));
 
-async function setup(script: (n: number) => Record<string, unknown> | 'silent' = () => OK, settings: Record<string, unknown> = {}, clock = { t: 1_000_000 }, settleMs = 5) {
+async function setup(
+  script: (n: number) => Record<string, unknown> | 'silent' = () => OK,
+  settings: Record<string, unknown> = {},
+  clock = { t: 1_000_000 },
+  settleMs = 5,
+  idleMs = 5 * 60_000,
+) {
   const t: TestContext = createTestContext('audiofix');
   const sleeps: number[] = [];
-  const plugin = createAudioFix({ now: () => clock.t, sleep: async ms => { sleeps.push(ms); }, settleMs, replyTimeoutMs: 200 });
+  const plugin = createAudioFix({ now: () => clock.t, sleep: async ms => { sleeps.push(ms); }, settleMs, replyTimeoutMs: 200, idleIntervalMs: idleMs });
   const h = fakeHelper(plugin, script);
   (t.context as { helpers: unknown }).helpers = h.helpers;
   for (const [k, v] of Object.entries(settings)) t.settings.set(k, v);
   return { t, plugin, h, sleeps, clock };
 }
 const repairs = (h: { sent: Sent[] }) => h.sent.filter(s => s.cmd === 'repair');
+const idleRepairs = (h: { sent: Sent[] }) => h.sent.filter(s => s.cmd === 'repairIfIdle');
 const healthKinds = (t: TestContext) => t.health.map(x => x.kind);
 
 describe('Audio Fix plugin', () => {
@@ -155,6 +165,7 @@ describe('Audio Fix plugin', () => {
     expect(repairs(h)).toHaveLength(1); // 80 ms of events, still settling: nothing yet
     await new Promise(r => setTimeout(r, 120)); await flush();
     expect(repairs(h)).toHaveLength(2); // exactly one for the whole burst
+    await plugin.deactivate();
   });
 
   it('the recency guard skips an automatic repair right after a repair; a manual one bypasses it', async () => {
@@ -174,6 +185,7 @@ describe('Audio Fix plugin', () => {
     plugin.onHelperMessage!('audiofix', { event: 'devicesChanged' });
     await new Promise(r => setTimeout(r, 40)); await flush();
     expect(repairs(h)).toHaveLength(2);
+    await plugin.deactivate();
   });
 
   it('turning auto-repair off stops watching and cancels a pending repair', async () => {
@@ -188,6 +200,131 @@ describe('Audio Fix plugin', () => {
     expect(h.sent.map(s => s.cmd)).toContain('unwatch');
     expect(repairs(h)).toHaveLength(1);
     expect(t.health.at(-1)).toEqual({ kind: 'ok', detail: 'Auto-repair off — use Repair Now' });
+  });
+
+  // ------------------------------------------------ proactive triggers (2.1.0)
+
+  it('repairs periodically while idle, without feeding the recency guard', async () => {
+    const clock = { t: 1_000_000 };
+    const { t, plugin, h } = await setup(() => OK, {}, clock, 5, 20);
+    await plugin.activate(t.context);
+    await tick(); await flush();
+    expect(idleRepairs(h)).toHaveLength(0); // the first tick comes later
+    clock.t += 11_000; // past the startup repair's guard
+    await new Promise(r => setTimeout(r, 50)); await flush();
+    const idle = idleRepairs(h);
+    expect(idle.length).toBeGreaterThanOrEqual(1);
+    expect(idle[0]).toMatchObject({ nameQuery: 'S2725QC' });
+    expect(t.status.get('state')).toBe('S2725QC [AB:1] → 2ch 24-bit 48000 Hz (lpcm)');
+    // The idle repair must not suppress a device-list repair: docking re-sticks
+    // the stream. 5 s after the idle repair the 10 s gate would block it if the
+    // idle repair had fed it (the startup repair is 16 s old, so the gate is open).
+    clock.t += 5_000;
+    plugin.onHelperMessage!('audiofix', { event: 'devicesChanged' });
+    await new Promise(r => setTimeout(r, 40)); await flush();
+    expect(repairs(h)).toHaveLength(2);
+    await plugin.deactivate();
+  });
+
+  it('idle replies are quiet: busy and absent change nothing', async () => {
+    const clock = { t: 1_000_000 };
+    const replies = [BUSY, ABSENT];
+    const { t, plugin, h } = await setup(n => replies[n - 1] ?? BUSY, {}, clock, 5, 15);
+    await plugin.activate(t.context);
+    await new Promise(r => setTimeout(r, 60)); await flush();
+    expect(idleRepairs(h).length).toBeGreaterThanOrEqual(2);
+    expect(t.notifications).toHaveLength(0);
+    expect(t.health.at(-1)).toEqual({ kind: 'ok', detail: 'Watching for S2725QC' });
+    await plugin.deactivate();
+  });
+
+  it('a failed idle repair warns once — no retries, no notification', async () => {
+    const clock = { t: 1_000_000 };
+    const { t, plugin, h, sleeps } = await setup(() => FAIL, {}, clock, 5, 15);
+    await plugin.activate(t.context);
+    await new Promise(r => setTimeout(r, 50)); await flush();
+    // The startup repair (the first `repair`) retries 3 times; the idle pass
+    // after it is exactly one attempt with no backoff sleeps of its own.
+    const idleCount = idleRepairs(h).length;
+    expect(idleCount).toBeGreaterThanOrEqual(1);
+    expect(sleeps).toEqual([2000, 5000]); // only the startup repair's backoff
+    expect(t.notifications).toHaveLength(1); // the startup give-up notification
+    expect(t.health.at(-1)!.kind).toBe('warning');
+    await plugin.deactivate();
+  });
+
+  it('an idle tick is skipped while a device-list repair is settling', async () => {
+    const clock = { t: 1_000_000 };
+    const { t, plugin, h } = await setup(() => OK, {}, clock, 60, 20);
+    await plugin.activate(t.context);
+    await tick(); await flush();
+    plugin.onHelperMessage!('audiofix', { event: 'devicesChanged' });
+    await new Promise(r => setTimeout(r, 50)); await flush(); // inside the 60 ms settle
+    expect(idleRepairs(h)).toHaveLength(0);
+    await new Promise(r => setTimeout(r, 120)); await flush();
+    expect(idleRepairs(h).length).toBeGreaterThanOrEqual(1);
+    await plugin.deactivate();
+  });
+
+  it('repairWhileIdle off arms no idle timer', async () => {
+    const { t, plugin, h } = await setup(() => OK, { [REPAIR_WHILE_IDLE_KEY]: false }, { t: 1_000_000 }, 5, 20);
+    await plugin.activate(t.context);
+    await new Promise(r => setTimeout(r, 60)); await flush();
+    expect(idleRepairs(h)).toHaveLength(0);
+    expect(repairs(h)).toHaveLength(1); // just the startup repair
+    await plugin.deactivate();
+  });
+
+  it('playback starting repairs only after the 10-minute window, and an idle repair counts into it', async () => {
+    const clock = { t: 1_000_000 };
+    // The injected clock only moves when the test moves it, so later idle
+    // passes must reply busy (which does not refresh lastAnyRepairAt) — only
+    // the first idle repair, at t+60 s, may count into the play window.
+    const script = (n: number) => (n <= 2 ? OK : BUSY);
+    const { t, plugin, h } = await setup(script, {}, clock, 5, 20);
+    await plugin.activate(t.context);
+    await tick(); await flush();
+    clock.t += 60_000;
+    await new Promise(r => setTimeout(r, 50)); await flush(); // idle repair at t+60 s
+    expect(idleRepairs(h).length).toBeGreaterThanOrEqual(1);
+    clock.t += 9 * 60_000; // 9 min since the idle repair: inside the play window
+    plugin.onHelperMessage!('audiofix', { event: 'targetActive' });
+    await new Promise(r => setTimeout(r, 40)); await flush();
+    expect(repairs(h)).toHaveLength(1); // skipped
+    clock.t += 2 * 60_000; // 11 min since the idle repair: the window is open
+    plugin.onHelperMessage!('audiofix', { event: 'targetActive' });
+    await new Promise(r => setTimeout(r, 40)); await flush();
+    expect(repairs(h)).toHaveLength(2); // the backstop fired
+    await plugin.deactivate();
+  });
+
+  it('repairOnPlayback off disables the backstop', async () => {
+    const clock = { t: 1_000_000 };
+    const { t, plugin, h } = await setup(() => OK, { [REPAIR_ON_PLAYBACK_KEY]: false }, clock, 5, 5 * 60_000);
+    await plugin.activate(t.context);
+    await tick(); await flush();
+    clock.t += PLAY_GUARD_MS + 60_000;
+    plugin.onHelperMessage!('audiofix', { event: 'targetActive' });
+    await new Promise(r => setTimeout(r, 40)); await flush();
+    expect(repairs(h)).toHaveLength(1); // only the startup repair
+    await plugin.deactivate();
+  });
+
+  it('a crashed helper is restarted and its listeners re-armed', async () => {
+    const { t, plugin, h } = await setup(() => OK, {});
+    await plugin.activate(t.context);
+    await tick(); await flush();
+    const watches = h.sent.filter(s => s.cmd === 'watch');
+    expect(watches).toHaveLength(1);
+    h.crash();
+    await plugin.perform!('repair-now');
+    await tick(); await flush(); await tick(); await flush();
+    expect(h.starts).toBe(2);
+    expect(h.sent.filter(s => s.cmd === 'watch')).toHaveLength(2);
+    expect(h.sent.filter(s => s.cmd === 'watch')[1]).toMatchObject({ nameQuery: 'S2725QC' });
+    expect(repairs(h)).toHaveLength(2);
+    expect(t.notifications).toHaveLength(0);
+    await plugin.deactivate();
   });
 
   it('a helper that stops answering fails the attempt instead of hanging', async () => {

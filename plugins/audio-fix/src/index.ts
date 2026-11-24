@@ -1,9 +1,14 @@
 // Audio Fix: repairs a monitor's stuck DisplayPort audio stream by running the
-// 16→24-bit format transition, automatically when the device list changes
-// (dock, monitor connect, wake) and on demand. Port of the Swift AudioFixPlugin.
+// 16→24-bit format transition: automatically when the device list changes
+// (dock, monitor connect, wake), every few minutes while the device is idle,
+// when playback starts on the monitor, and on demand. Port of the Swift
+// AudioFixPlugin plus the automatic triggers — a stream can go stuck with no
+// observable CoreAudio event (verified 2026-11-24), so repairs must also run
+// proactively; the stuck state is invisible to CoreAudio, there is nothing to
+// detect.
 //
 // CoreAudio lives in a small Swift helper (bin/audiofix-helper, JSON lines on
-// stdio): the listener and the format toggle, nothing else. The decisions
+// stdio): the listeners and the format toggle, nothing else. The decisions
 // (settle delay, recency guard, retry schedule) live here, where they are
 // testable without hardware.
 import {
@@ -21,11 +26,19 @@ export const HELPER = 'audiofix';
 export const DEVICE_NAME_KEY = 'deviceName';
 export const DEVICE_UID_KEY = 'deviceUID';
 export const AUTO_REPAIR_KEY = 'autoRepair';
+export const REPAIR_WHILE_IDLE_KEY = 'repairWhileIdle';
+export const REPAIR_ON_PLAYBACK_KEY = 'repairOnPlayback';
 export const DEFAULT_DEVICE = 'S2725QC';
 /** Waiting after the last device-list change lets a docking burst settle into one repair. */
 export const SETTLE_MS = 2000;
 /** A helper that never answers must not hang a repair forever. */
 export const REPLY_TIMEOUT_MS = 30_000;
+/** How often to repair while the target is idle: the stuck state can arise
+ *  with no event at all, and the idle repair heals it before it is heard. */
+export const IDLE_INTERVAL_MS = 5 * 60_000;
+/** A play-start repair also fires when nothing was wrong (the blip the user
+ *  accepted), so it is bounded: at most once per this window. */
+export const PLAY_GUARD_MS = 10 * 60_000;
 
 export const settingsSchema: SettingsSchema = {
   sections: [
@@ -41,6 +54,8 @@ export const settingsSchema: SettingsSchema = {
       fields: [
         { type: 'status', key: 'state', label: 'Status' },
         { type: 'toggle', key: AUTO_REPAIR_KEY, label: 'Repair automatically on connect / wake', default: true },
+        { type: 'toggle', key: REPAIR_WHILE_IDLE_KEY, label: 'Keep the stream repaired while idle', default: true, help: `Runs the fix every ${IDLE_INTERVAL_MS / 60_000} minutes when nothing is playing — heals a stuck stream before you notice.` },
+        { type: 'toggle', key: REPAIR_ON_PLAYBACK_KEY, label: 'Repair when playback starts', default: true, help: 'Guarantees audio when you press play. May briefly interrupt the first second of sound even when nothing was wrong (at most once per 10 minutes).' },
         { type: 'action', key: 'repair-now', label: 'Repair now', help: 'Runs the 16→24-bit format transition. Safe to run anytime: it is the fix itself.' },
         { type: 'action', key: 'list-devices', label: 'List devices', help: 'Shows each output device’s name, UID and format.' },
         { type: 'status', key: 'devices', label: 'Devices' },
@@ -50,7 +65,7 @@ export const settingsSchema: SettingsSchema = {
 };
 
 interface Helper { send(message: unknown): Promise<void>; stop(): Promise<void> }
-type Reason = 'startup' | 'manual' | 'device list changed';
+type Reason = 'startup' | 'manual' | 'device list changed' | 'idle' | 'playback started';
 
 export interface AudioFixOptions {
   /** Injectable for tests. */
@@ -58,6 +73,7 @@ export interface AudioFixOptions {
   readonly sleep?: (ms: number) => Promise<void>;
   readonly settleMs?: number;
   readonly replyTimeoutMs?: number;
+  readonly idleIntervalMs?: number;
 }
 
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -67,6 +83,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>(r => setTimeout(r, ms)));
   const settleMs = options.settleMs ?? SETTLE_MS;
   const replyTimeoutMs = options.replyTimeoutMs ?? REPLY_TIMEOUT_MS;
+  const idleIntervalMs = options.idleIntervalMs ?? IDLE_INTERVAL_MS;
 
   let ctx: PluginContext | null = null;
   let helper: Helper | null = null;
@@ -74,8 +91,13 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   let watching = false;
   let gate = new RepairGate();
   let settleTimer: ReturnType<typeof setTimeout> | null = null;
+  let idleTimer: ReturnType<typeof setInterval> | null = null;
   let unwatch: (() => void) | null = null;
   let nextId = 1;
+  /** The last successful repair of ANY kind (event, manual, idle). The
+   *  play-start backstop waits out its window since this; the gate tracks only
+   *  event-class repairs so a recent idle repair never suppresses one. */
+  let lastAnyRepairAt: number | null = null;
   const pending = new Map<number, { resolve(r: HelperReply): void; timer: ReturnType<typeof setTimeout> }>();
   // Repairs never overlap: a manual one waits for an automatic one in flight.
   let queue: Promise<unknown> = Promise.resolve();
@@ -107,22 +129,35 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
     try {
       await (await ensureHelper(c)).send(line);
     } catch {
+      const wasWatching = watching;
       helper = null;
       if (watching) watching = false; // a fresh helper has no listener yet
-      try { await (await ensureHelper(c)).send(line); }
+      try {
+        const h = await ensureHelper(c);
+        if (wasWatching) {
+          // Without the listeners on the fresh helper, auto-repair would be
+          // silently dead from here on. A failed re-arm still lets the repair
+          // below run (and report its own failure).
+          try { const t = await targetOf(c); await h.send({ cmd: 'watch', nameQuery: t.name, uid: t.uid }); watching = true; }
+          catch { c.logger.warn('couldn’t re-arm the device listeners after restarting the helper'); }
+        }
+        await h.send(line);
+      }
       catch (e) { const p = pending.get(id); if (p) { clearTimeout(p.timer); pending.delete(id); } throw new Error(`couldn’t start the audio helper: ${msg(e)}`); }
     }
     return reply;
   };
 
   const startWatching = async (c: PluginContext) => {
-    await (await ensureHelper(c)).send({ cmd: 'watch' });
+    const t = await targetOf(c);
+    await (await ensureHelper(c)).send({ cmd: 'watch', nameQuery: t.name, uid: t.uid });
     watching = true;
   };
 
   // ------------------------------------------------------------ repairs
 
   const onResult = async (c: PluginContext, reason: Reason, r: RepairResult, target: string) => {
+    if (r.status === 'busy') return; // only the idle pass replies busy, and it reports itself
     if (r.status === 'repaired') {
       c.logger.info(`${reason}: repaired ${r.device} -> ${r.format}`);
       setState(c, `${r.device} → ${r.format}`);
@@ -141,7 +176,12 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
     }
   };
 
-  const attemptRepair = async (c: PluginContext, reason: Reason, bypassGuard = false): Promise<RepairResult | 'skipped'> => {
+  const attemptRepair = async (c: PluginContext, reason: Reason, bypassGuard = false, minMsSinceAnyRepair?: number): Promise<RepairResult | 'skipped'> => {
+    if (!bypassGuard && minMsSinceAnyRepair !== undefined && lastAnyRepairAt !== null && now() - lastAnyRepairAt < minMsSinceAnyRepair) {
+      const ago = Math.round((now() - lastAnyRepairAt) / 60_000);
+      c.logger.info(`${reason}: repaired ${ago} min ago; skipping`);
+      return 'skipped';
+    }
     if (!bypassGuard && !gate.canRepair(now())) {
       const ago = Math.round((now() - (gate.lastRepairAt ?? now())) / 1000);
       c.logger.info(`${reason}: repaired ${ago}s ago; skipping`);
@@ -158,8 +198,9 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
         r = reply;
       } catch (e) { r = { status: 'failed', message: msg(e) }; }
 
-      if (r.status === 'repaired') { gate.recordRepair(now()); await onResult(c, reason, r, target.text); return r; }
+      if (r.status === 'repaired') { gate.recordRepair(now()); lastAnyRepairAt = now(); await onResult(c, reason, r, target.text); return r; }
       if (r.status === 'absent') { await onResult(c, reason, r, target.text); return r; }
+      if (r.status === 'busy') { c.logger.info(`${reason}: target is in use; skipping`); return 'skipped'; }
       last = r;
       if (attempt < gate.maxAttempts) {
         c.logger.error(`attempt ${attempt}/${gate.maxAttempts} failed: ${r.message}`);
@@ -171,25 +212,72 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
     return last;
   };
 
-  const enqueue = (c: PluginContext, reason: Reason, bypassGuard = false) => {
-    const run = queue.then(() => (ctx === c ? attemptRepair(c, reason, bypassGuard) : 'skipped' as const));
+  const enqueue = (c: PluginContext, reason: Reason, bypassGuard = false, minMsSinceAnyRepair?: number) => {
+    const run = queue.then(() => (ctx === c ? attemptRepair(c, reason, bypassGuard, minMsSinceAnyRepair) : 'skipped' as const));
     queue = run.catch(() => {});
     return run;
   };
 
-  const scheduleRepair = (c: PluginContext) => {
+  const scheduleRepair = (c: PluginContext, reason: Reason = 'device list changed', minMsSinceAnyRepair?: number) => {
     if (settleTimer) clearTimeout(settleTimer);
-    settleTimer = setTimeout(() => { settleTimer = null; void enqueue(c, 'device list changed'); }, settleMs);
+    settleTimer = setTimeout(() => { settleTimer = null; void enqueue(c, reason, false, minMsSinceAnyRepair); }, settleMs);
   };
+
+  // ------------------------------------------------------------ idle repair
+
+  /** One quiet pass, at the heart of "automatic": a stream can go stuck with
+   *  no CoreAudio event at all (2026-11-24), so the fix runs periodically while
+   *  the device is idle — inaudible, because nothing is playing. It bypasses
+   *  and never records into the gate: a device-list change right after must
+   *  still repair (docking re-sticks the stream). */
+  const runIdleRepair = async (c: PluginContext): Promise<void> => {
+    if (settleTimer) return; // an event repair is already settling; it covers this
+    const target = await targetOf(c);
+    let r: RepairResult;
+    try {
+      const reply = await request(c, { cmd: 'repairIfIdle', nameQuery: target.name, uid: target.uid });
+      if (reply.status === 'listed') return;
+      r = reply;
+    } catch (e) { r = { status: 'failed', message: msg(e) }; }
+    if (r.status === 'busy') { c.logger.debug('idle repair: the target is in use; skipping'); return; }
+    if (r.status === 'absent') { c.logger.debug('idle repair: target device absent'); return; }
+    if (r.status === 'repaired') {
+      lastAnyRepairAt = now();
+      c.logger.info(`idle: repaired ${r.device} -> ${r.format}`);
+      setState(c, `${r.device} → ${r.format}`);
+      c.reportHealth(health.ok(`${r.device} → ${r.format}`));
+      return;
+    }
+    // One attempt, no retries and no notification: the next tick retries, and
+    // a real connect event still runs the never-silent path.
+    c.logger.error(`idle repair failed: ${r.message}`);
+    setState(c, `Last repair failed — ${r.message}`);
+    c.reportHealth(health.warning(`Last repair failed — ${r.message}`));
+  };
+
+  const enqueueIdle = (c: PluginContext) => {
+    const run = queue.then(() => (ctx === c ? runIdleRepair(c) : undefined));
+    queue = run.catch(() => {});
+    return run;
+  };
+
+  const stopIdleTimer = () => { if (idleTimer) { clearInterval(idleTimer); idleTimer = null; } };
 
   // ------------------------------------------------------------ auto-repair on/off
 
   const applyAutoRepair = async (c: PluginContext) => {
     const auto = (await c.settings.get<boolean>(AUTO_REPAIR_KEY)) ?? true;
+    const repairWhileIdle = (await c.settings.get<boolean>(REPAIR_WHILE_IDLE_KEY)) ?? true;
     const target = await targetOf(c);
     if (auto) {
       try {
-        if (!watching) await startWatching(c);
+        // Always (re)sent: idempotent in the helper, and it moves the target's
+        // activity listener when the device name or UID setting changed.
+        await startWatching(c);
+        if (repairWhileIdle) {
+          if (idleTimer) clearInterval(idleTimer);
+          idleTimer = setInterval(() => { void enqueueIdle(c); }, idleIntervalMs);
+        } else stopIdleTimer();
         c.reportHealth(health.ok(`Watching for ${target.text}`));
         setState(c, `Watching for ${target.text}`);
         c.logger.info(`watching for "${target.text}"; repairs run automatically when it appears`);
@@ -203,6 +291,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
       }
     } else {
       if (settleTimer) { clearTimeout(settleTimer); settleTimer = null; }
+      stopIdleTimer();
       if (watching) { watching = false; await helper?.send({ cmd: 'unwatch' }).catch(() => {}); c.logger.info('stopped watching'); }
       c.reportHealth(health.ok('Auto-repair off — use Repair Now'));
       setState(c, 'Auto-repair off — use Repair Now');
@@ -215,7 +304,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   const listDevices = async (c: PluginContext): Promise<string> => {
     try {
       const reply = await request(c, { cmd: 'list' });
-      if (reply.status !== 'listed') throw new Error(reply.status === 'repaired' ? 'unexpected reply' : reply.message);
+      if (reply.status !== 'listed') throw new Error(reply.status === 'repaired' || reply.status === 'busy' ? 'unexpected reply' : reply.message);
       const text = describeDevices(reply.devices);
       c.reportStatus({ devices: text });
       return text;
@@ -229,15 +318,16 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   const repairNow = async (c: PluginContext) => { await enqueue(c, 'manual', true); };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Audio Fix', icon: 'speaker', summary: 'Repairs the monitor’s stuck DisplayPort audio stream', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'Audio Fix', icon: 'speaker', summary: 'Repairs the monitor’s stuck DisplayPort audio stream', version: '2.1.0' },
     settings: settingsSchema,
 
     async activate(context) {
       ctx = context;
       gate = new RepairGate();
-      await context.settings.registerDefaults({ [DEVICE_NAME_KEY]: DEFAULT_DEVICE, [AUTO_REPAIR_KEY]: true });
+      lastAnyRepairAt = null;
+      await context.settings.registerDefaults({ [DEVICE_NAME_KEY]: DEFAULT_DEVICE, [AUTO_REPAIR_KEY]: true, [REPAIR_WHILE_IDLE_KEY]: true, [REPAIR_ON_PLAYBACK_KEY]: true });
       unwatch = context.settings.onChange(key => {
-        if (key === AUTO_REPAIR_KEY || key === DEVICE_NAME_KEY || key === DEVICE_UID_KEY) void applyAutoRepair(context);
+        if (key === AUTO_REPAIR_KEY || key === REPAIR_WHILE_IDLE_KEY || key === DEVICE_NAME_KEY || key === DEVICE_UID_KEY) void applyAutoRepair(context);
       });
       context.menu.set([{ kind: 'item', id: 'repair', label: 'Repair Now' }]);
       await applyAutoRepair(context);
@@ -250,6 +340,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
       unwatch?.(); unwatch = null;
       if (settleTimer) clearTimeout(settleTimer);
       settleTimer = null;
+      stopIdleTimer();
       for (const p of pending.values()) clearTimeout(p.timer);
       pending.clear();
       const h = helper;
@@ -264,6 +355,12 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
       if (!m) { ctx.logger.warn('the audio helper sent an unrecognized line'); return; }
       if ('event' in m) {
         if (m.event === 'devicesChanged') scheduleRepair(ctx);
+        else if (m.event === 'targetActive') {
+          // The helper reports every activity transition; the setting decides.
+          void ctx.settings.get<boolean>(REPAIR_ON_PLAYBACK_KEY).then(on => {
+            if (on && ctx) scheduleRepair(ctx, 'playback started', PLAY_GUARD_MS);
+          });
+        }
         return;
       }
       const p = pending.get(m.id);

@@ -135,6 +135,21 @@ final class CoreAudioDeviceManager {
         return matches[0]
     }
 
+    /// Whether any client has IO running on the device (CoreAudio's
+    /// "is running somewhere"). The plugin's periodic repair only runs when
+    /// this is false, so it never interrupts playing audio.
+    func isInUse(deviceID: AudioDeviceID) -> Bool {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyDeviceIsRunningSomewhere,
+            mScope: kAudioDevicePropertyScopeOutput,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        var value: UInt32 = 0
+        var size = UInt32(MemoryLayout<UInt32>.size)
+        let status = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &size, &value)
+        return status == noErr && value != 0
+    }
+
     func repair(device: AudioDevice, dryRun: Bool) throws -> AudioFormat {
         guard let streamID = try? outputStream(device.id) else {
             throw AudioFixError.noOutputStream(device)

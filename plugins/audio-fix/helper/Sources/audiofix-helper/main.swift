@@ -25,26 +25,75 @@ var devicesAddress = AudioObjectPropertyAddress(
     mElement: kAudioObjectPropertyElementMain
 )
 let listenerQueue = DispatchQueue(label: "com.workbar.audiofix.listener")
-let listenerBlock: AudioObjectPropertyListenerBlock = { _, _ in emit(["event": "devicesChanged"]) }
+let listenerBlock: AudioObjectPropertyListenerBlock = { _, _ in
+    emit(["event": "devicesChanged"])
+    // The target may have been unplugged, or come back with a new id.
+    attachActivityListener()
+}
 var listening = false
 
-func watch() -> String? {
-    if listening { return nil }
-    let status = AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &devicesAddress, listenerQueue, listenerBlock)
-    guard status == noErr else { return "registering the device listener failed (OSStatus \(status))" }
-    listening = true
+// The target's activity: a transition to "playing" is the plugin's play-start
+// backstop. The listener is re-attached whenever the target changes or the
+// device list does; the address passed to AudioObjectAddPropertyListenerBlock
+// must outlive the registration AND the removal, so it lives here.
+var targetNameQuery: String?
+var targetUid: String?
+var activityAddress = AudioObjectPropertyAddress(
+    mSelector: kAudioDevicePropertyDeviceIsRunningSomewhere,
+    mScope: kAudioDevicePropertyScopeOutput,
+    mElement: kAudioObjectPropertyElementMain
+)
+var activityDeviceID: AudioDeviceID?
+let activityQueue = DispatchQueue(label: "com.workbar.audiofix.activity")
+let activityBlock: AudioObjectPropertyListenerBlock = { objectID, _ in
+    // Only playback STARTING (running now) triggers the backstop; a stop does not.
+    if manager.isInUse(deviceID: objectID) { emit(["event": "targetActive"]) }
+}
+
+func attachActivityListener() {
+    detachActivityListener()
+    guard let device = try? manager.matchingDevice(nameQuery: targetNameQuery, uid: targetUid) else { return }
+    let status = AudioObjectAddPropertyListenerBlock(device.id, &activityAddress, activityQueue, activityBlock)
+    guard status == noErr else {
+        FileHandle.standardError.write(Data("attaching the activity listener failed (OSStatus \(status))\n".utf8))
+        return
+    }
+    activityDeviceID = device.id
+}
+
+func detachActivityListener() {
+    guard let id = activityDeviceID else { return }
+    AudioObjectRemovePropertyListenerBlock(id, &activityAddress, activityQueue, activityBlock)
+    activityDeviceID = nil
+}
+
+func watch(nameQuery: String?, uid: String?) -> String? {
+    targetNameQuery = nameQuery
+    targetUid = uid
+    if !listening {
+        let status = AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &devicesAddress, listenerQueue, listenerBlock)
+        guard status == noErr else { return "registering the device listener failed (OSStatus \(status))" }
+        listening = true
+    }
+    // Re-resolves the target even when already watching: the target may have changed.
+    attachActivityListener()
     return nil
 }
 
 func unwatch() {
+    detachActivityListener()
     guard listening else { return }
     AudioObjectRemovePropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject), &devicesAddress, listenerQueue, listenerBlock)
     listening = false
 }
 
-func repair(id: Int, nameQuery: String?, uid: String?) {
+func repair(id: Int, nameQuery: String?, uid: String?, onlyWhenIdle: Bool) {
     do {
         let device = try manager.matchingDevice(nameQuery: nameQuery, uid: uid)
+        if onlyWhenIdle, manager.isInUse(deviceID: device.id) {
+            emit(["id": id, "status": "busy"])
+            return
+        }
         let result = try manager.repair(device: device, dryRun: false)
         emit(["id": id, "status": "repaired", "device": device.identity, "format": result.description])
     } catch AudioFixError.noMatch, AudioFixError.noDevices {
@@ -77,12 +126,17 @@ func handle(_ line: String) {
     }
     switch cmd {
     case "watch":
-        if let problem = watch() { FileHandle.standardError.write(Data((problem + "\n").utf8)) }
+        if let problem = watch(nameQuery: blank(object["nameQuery"] as? String), uid: blank(object["uid"] as? String)) {
+            FileHandle.standardError.write(Data((problem + "\n").utf8))
+        }
     case "unwatch":
         unwatch()
     case "repair":
         guard let id else { return }
-        work.async { repair(id: id, nameQuery: blank(object["nameQuery"] as? String), uid: blank(object["uid"] as? String)) }
+        work.async { repair(id: id, nameQuery: blank(object["nameQuery"] as? String), uid: blank(object["uid"] as? String), onlyWhenIdle: false) }
+    case "repairIfIdle":
+        guard let id else { return }
+        work.async { repair(id: id, nameQuery: blank(object["nameQuery"] as? String), uid: blank(object["uid"] as? String), onlyWhenIdle: true) }
     case "list":
         guard let id else { return }
         work.async { list(id: id) }
