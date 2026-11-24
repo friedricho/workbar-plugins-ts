@@ -80,3 +80,23 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   copies. Verified on the Mac: the owner installed the package in the packaged app
   and it works against the real Keychain and claude.ai (exit criterion met;
   the Keychain prompt names `security`, not WorkBar).
+- 2026-11-23 — Quick Capture ported (plugin `quickcapture`, needs workbar-electron
+  SDK 3.1.0 for `ctx.panel`). Engine in `src/`: `board.ts` (parser; differentially
+  tested against the verbatim `resources/insert.js` on 6000 generated boards),
+  `writers.ts` (Obsidian CLI tier via `obsidian eval`, atomic direct writer, +1/+3/+6 s
+  clobber verifier), `engine.ts` (tier choice, one FIFO queue), `due-date.ts` (moment.js
+  formats, `@{…}` tokens, picker text surgery; moment's FIXED two-digit-year pivot),
+  `editor.ts` (DOM-free state machine for the bar: picker, type-ahead, key routing),
+  `view-model.ts`, `index.ts` (hotkey, settings, panel conversation, capture action).
+  The page is `views/panel.html|css` + `src/views/panel.ts` bundled to the git-ignored
+  `views/panel.js` (the host serves views with `script-src 'self'`); page scripts are
+  typechecked by `tsconfig.views.json` (DOM lib). `build.mjs` also packs `resources/`.
+  Tests never touch the real Obsidian CLI or a real vault (mock runner, temp folders);
+  `e2e/capture.e2e.mjs` drives the real host against a temp vault. Verified by the owner
+  on the Mac in the installed app: capture via the direct tier on a copy of the board and
+  via the CLI tier on the real board. The Swift hotkey (Carbon key code + modifiers) is
+  converted once with `carbonToAccelerator` and never overwrites a user-chosen accelerator.
+  Known gaps: the due-date token is plain text in the field (no chip styling); Windows
+  untested. The installed app's first `open -a` after a swap did not start it (starting
+  the binary did); Pendo Feedback timed out once in `activate()` right after the swap and
+  recovered on restart (watch for a repeat).
