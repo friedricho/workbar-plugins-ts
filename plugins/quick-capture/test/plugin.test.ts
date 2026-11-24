@@ -289,6 +289,28 @@ describe('the panel conversation', () => {
     for (const bad of [null, 'x', 5, [], {}, { type: 'submit' }, { type: 'submit', text: 5 }, { type: 'launch-missiles' }]) await plugin.onPanelMessage!(bad);
     expect(engine.captures).toEqual([]);
   });
+  it('a resize request from the page resizes the open bar (the page measures its own content)', async () => {
+    const { t, plugin } = setup(configured());
+    await plugin.activate(t.context);
+    await plugin.onHotKey!(HOTKEY_ID);
+    await plugin.onPanelMessage!({ type: 'resize', height: 120 });
+    expect(t.panel.height).toBe(120);
+    await plugin.onPanelMessage!({ type: 'resize', height: 46 });
+    expect(t.panel.height).toBe(46);
+  });
+  it('a resize when the bar is not open is ignored (the host would ignore it anyway, and nothing is queued for the next show)', async () => {
+    const { t, plugin } = setup(configured());
+    await plugin.activate(t.context);
+    await plugin.onPanelMessage!({ type: 'resize', height: 300 });
+    expect(t.panel.calls.filter(c => c.call === 'resize')).toEqual([]);
+  });
+  it('an out-of-range resize is dropped by validation, not clamped silently', async () => {
+    const { t, plugin } = setup(configured());
+    await plugin.activate(t.context);
+    await plugin.onHotKey!(HOTKEY_ID);
+    await plugin.onPanelMessage!({ type: 'resize', height: 5000 });
+    expect(t.panel.calls.filter(c => c.call === 'resize')).toEqual([]);
+  });
   it('the gear opens the plugin’s settings page', async () => {
     const { t, plugin } = setup(configured());
     await plugin.activate(t.context);

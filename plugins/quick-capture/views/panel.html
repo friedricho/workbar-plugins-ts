@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quick Capture</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<main id="bar" class="bar" data-mode="editing">
+  <div id="row" class="row">
+    <span id="glyph" class="glyph" aria-hidden="true">✦</span>
+    <textarea id="field" class="field" rows="1" placeholder="Capture an idea…" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Capture an idea"></textarea>
+    <span id="hint" class="hint" aria-hidden="true"></span>
+    <button id="gear" class="gear" type="button" title="Open Settings" aria-label="Open Settings">⚙</button>
+    <span id="flash" class="flash" role="status" hidden></span>
+    <span id="setup" class="setup" hidden>Set up Quick Capture in Settings…</span>
+    <button id="setup-button" class="link-button" type="button" hidden>Open Settings</button>
+  </div>
+  <div id="picker" class="picker" hidden></div>
+  <div id="error" class="error" role="alert" hidden>
+    <span class="error-glyph" aria-hidden="true">⚠</span>
+    <div class="error-body"><span id="error-text"></span><button id="error-settings" class="link-button small" type="button">Open Settings…</button></div>
+  </div>
+</main>
+<script src="panel.js"></script>
+</body>
+</html>

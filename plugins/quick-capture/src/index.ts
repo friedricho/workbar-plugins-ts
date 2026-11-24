@@ -262,6 +262,7 @@ export function createQuickCapture(options: QuickCaptureOptions = {}): Capabilit
       if (!c || !m) return;
       if (m.type === 'ready') { if (open) await push(c, mode === 'submitting' ? 'submitting' : mode, current?.message); return; }
       if (m.type === 'openSettings') { c.requestOpenDetail(); return; }
+      if (m.type === 'resize') { if (open) await c.panel.resize({ height: m.height }).catch(() => {}); return; }
       await submit(c, m.text);
     },
 

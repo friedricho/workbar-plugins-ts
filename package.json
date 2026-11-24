@@ -10,7 +10,7 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "pack": "node tools/build-helpers.mjs && node tools/build.mjs --pack",
-    "typecheck": "tsc --noEmit -p .",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p tsconfig.views.json",
     "test": "vitest run",
     "build:helpers": "node tools/build-helpers.mjs"
   },

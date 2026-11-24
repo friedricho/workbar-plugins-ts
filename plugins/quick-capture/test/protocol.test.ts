@@ -8,6 +8,13 @@ describe('parsePageMessage', () => {
     expect(parsePageMessage({ type: 'openSettings' })).toEqual({ type: 'openSettings' });
     expect(parsePageMessage({ type: 'ready' })).toEqual({ type: 'ready' });
   });
+  it('accepts a resize request with a sane height, and drops anything else', () => {
+    expect(parsePageMessage({ type: 'resize', height: 46 })).toEqual({ type: 'resize', height: 46 });
+    expect(parsePageMessage({ type: 'resize', height: 800 })).toEqual({ type: 'resize', height: 800 });
+    expect(parsePageMessage({ type: 'resize', height: 20 })).toEqual({ type: 'resize', height: 20 });
+    for (const h of [19.9, 800.1, -5, 0, NaN, Infinity, '46', null, undefined]) expect(parsePageMessage({ type: 'resize', height: h }), String(h)).toBeNull();
+    expect(parsePageMessage({ type: 'resize' })).toBeNull();
+  });
   it('drops anything else, including extra fields on a valid type (they are not passed on)', () => {
     for (const bad of [null, undefined, 'x', 5, true, [], {}, { type: 'submit' }, { type: 'submit', text: 5 }, { type: 'submit', text: null }, { type: 'nope' }, { text: 'x' }]) {
       expect(parsePageMessage(bad), JSON.stringify(bad)).toBeNull();
