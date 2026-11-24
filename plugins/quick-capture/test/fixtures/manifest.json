@@ -1,0 +1,18 @@
+{
+  "cases": [
+    {"name": "basic-prepend", "input": "basic-prepend.md", "expected": "basic-prepend.expected.md", "column": "Today"},
+    {"name": "append", "input": "append.md", "expected": "append.expected.md", "column": "Today"},
+    {"name": "append-multiline", "input": "append.md", "expected": "append-multiline.expected.md", "column": "Today",
+     "card": "First line\nSecond line: \"quoted\" ✨"},
+    {"name": "no-settings", "input": "no-settings.md", "expected": "no-settings.expected.md", "column": "Today"},
+    {"name": "empty-today-prepend", "input": "empty-today-prepend.md", "expected": "empty-today-prepend.expected.md", "column": "Today"},
+    {"name": "empty-today-append", "input": "empty-today-append.md", "expected": "empty-today-append.expected.md", "column": "Today"},
+    {"name": "sublane-append", "input": "sublane-append.md", "expected": "sublane-append.expected.md", "column": "Today"},
+    {"name": "crlf", "input": "crlf.md", "expected": "crlf.expected.md", "column": "Today"},
+    {"name": "tags-prepend", "input": "tags-prepend.md", "expected": "tags-prepend.expected.md", "column": "Today"},
+    {"name": "no-trailing-newline", "input": "no-trailing-newline.md", "expected": "no-trailing-newline.expected.md", "column": "Today"},
+    {"name": "malformed-settings-prepend", "input": "malformed-settings-prepend.md", "expected": "malformed-settings-prepend.expected.md", "column": "Today"},
+    {"name": "hr-lane-append", "input": "hr-lane-append.md", "expected": "hr-lane-append.expected.md", "column": "Done"},
+    {"name": "column-missing", "input": "column-missing.md", "column": "Today", "error": "columnNotFound"}
+  ]
+}
