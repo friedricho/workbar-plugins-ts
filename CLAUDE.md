@@ -68,3 +68,15 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   Mac: the owner installed the package in the packaged app and a real repair
   of the monitor worked (exit criterion met). Build with `pnpm run pack`
   (plain `pnpm pack` is pnpm's own command).
+- 2026-11-23 — Claude Spend ported (plugin `claudespend`, darwin only; Windows
+  later: DPAPI + paste-a-cookie fallback). Chromium crypto in `cookie-crypt.ts`
+  pinned with independent vectors (python hashlib PBKDF2, `openssl enc` AES,
+  `sha256sum` digest) and mutation-checked; the cookie DB copy is read with
+  `ctx.storage.openReadOnly`, the Keychain through `/usr/bin/security` (reader
+  injectable; tests use stub executables, never the real Keychain), the temp
+  copy is deleted on every call. Pasted override = plugin secret
+  `sessionCookie` (a valid secret name). Settings keys, snapshot shape, band
+  memory and job id (`claudespend.poll`) match Swift. Fixtures are byte-exact
+  copies. Verified on the Mac: the owner installed the package in the packaged app
+  and it works against the real Keychain and claude.ai (exit criterion met;
+  the Keychain prompt names `security`, not WorkBar).

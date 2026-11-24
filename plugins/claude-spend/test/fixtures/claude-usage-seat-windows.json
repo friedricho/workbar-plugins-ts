@@ -1,0 +1,48 @@
+{
+  "five_hour": {
+    "model": "claude-sonnet-5-5",
+    "prompt_tokens": 142000,
+    "completion_tokens": 3800,
+    "max_prompt_tokens": 500000,
+    "reset_at": "2026-11-18T22:00:00+00:00"
+  },
+  "seven_day": {
+    "model": "claude-sonnet-5-5",
+    "prompt_tokens": 990000,
+    "completion_tokens": 42000,
+    "max_prompt_tokens": 2000000
+  },
+  "seven_day_cowork": null,
+  "extra_usage": {
+    "is_enabled": false,
+    "monthly_limit": 0,
+    "used_credits": 0,
+    "utilization": 0,
+    "currency": "USD",
+    "decimal_places": 2,
+    "disabled_reason": null,
+    "user_disabled": false,
+    "spend_limit_reached": false,
+    "credits_ever_enabled": false,
+    "daily": null,
+    "weekly": null
+  },
+  "limits": [
+    { "kind": "five_hour", "used": { "amount_minor": 142000, "currency": "USD", "exponent": 2 } },
+    { "kind": "seven_day", "used": { "amount_minor": 990000, "currency": "USD", "exponent": 2 } }
+  ],
+  "spend": {
+    "used":  { "amount_minor": 0, "currency": "USD", "exponent": 2 },
+    "limit": { "amount_minor": 0, "currency": "USD", "exponent": 2 },
+    "percent": 0,
+    "severity": "normal",
+    "enabled": false,
+    "disabled_reason": null,
+    "cap": { "money": null, "credits": { "amount_minor": 0, "exponent": 2 } },
+    "balance": null,
+    "auto_reload": null,
+    "can_purchase_credits": false,
+    "can_toggle": false
+  },
+  "member_dashboard_available": true
+}
