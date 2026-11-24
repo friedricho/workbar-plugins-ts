@@ -30,13 +30,27 @@ for (const name of fs.readdirSync(pluginsDir).sort()) {
     logLevel: 'warning',
     legalComments: 'none',
   });
+  // A plugin's page scripts (views/*.js) may be built from TypeScript in src/views/: the host serves views with a strict
+  // CSP (script-src 'self'), so the page needs one plain script file, with no imports. Each src/views/*.ts is bundled
+  // to views/<name>.js next to the page; that output is a build product (git-ignored), never edited by hand.
+  const viewsSrc = path.join(dir, 'src', 'views');
+  if (fs.existsSync(viewsSrc)) {
+    for (const f of fs.readdirSync(viewsSrc).filter(f => f.endsWith('.ts'))) {
+      await build({
+        entryPoints: [path.join(viewsSrc, f)],
+        outfile: path.join(dir, 'views', f.replace(/\.ts$/, '.js')),
+        bundle: true, format: 'iife', platform: 'browser', target: 'es2022', logLevel: 'warning', legalComments: 'none',
+      });
+    }
+  }
   console.log(`built ${manifest.id} ${manifest.version}`);
   if (pack) {
     const out = path.join(dir, 'dist', `${manifest.id}-${manifest.version}.workbarplugin`);
     fs.rmSync(out, { force: true });
     // A plugin that declares native helpers must ship them: a package without bin/ would install and then fail at first use.
     if (manifest.helpers && !fs.existsSync(path.join(dir, 'bin'))) throw new Error(`${name}: plugin.json declares helpers but bin/ is missing (run pnpm build:helpers on macOS)`);
-    const files = ['plugin.json', 'dist/index.mjs', ...['views', 'bin'].filter(d => fs.existsSync(path.join(dir, d)))];
+    // `resources/` holds files the plugin reads at run time (Quick Capture's insert.js, which runs inside Obsidian).
+    const files = ['plugin.json', 'dist/index.mjs', ...['views', 'bin', 'resources'].filter(d => fs.existsSync(path.join(dir, d)))];
     execFileSync('zip', ['-qr', out, ...files], { cwd: dir });
     console.log(`packed ${path.relative(repoRoot, out)}`);
   }
