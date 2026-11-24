@@ -246,7 +246,7 @@ export function createPendoFeedback(options: PendoOptions = {}): CapabilityPlugi
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Autopilot Pendo Feedback', icon: 'message-square', summary: 'Fetches Pendo guide poll feedback on a schedule and writes a Markdown report plus a SQLite history', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'Autopilot Pendo Feedback', icon: 'message-square', summary: 'Fetches Pendo guide poll feedback on a schedule and writes a Markdown report plus a SQLite history', version: '2.0.1' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 

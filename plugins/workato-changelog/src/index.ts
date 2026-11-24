@@ -200,7 +200,7 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Workato Changelog', icon: 'file-search', summary: 'Scrapes Workato’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'Workato Changelog', icon: 'file-search', summary: 'Scrapes Workato’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.1' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 

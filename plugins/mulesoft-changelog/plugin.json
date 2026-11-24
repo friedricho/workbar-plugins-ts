@@ -2,8 +2,8 @@
   "schemaVersion": 2,
   "id": "mulesoftchangelog",
   "name": "MuleSoft Changelog",
-  "version": "2.0.0",
-  "minimumSDK": "3.0.0",
+  "version": "2.0.1",
+  "minimumSDK": "3.2.0",
   "main": "dist/index.mjs",
   "platforms": ["darwin", "win32", "linux"],
   "menuOrder": 5

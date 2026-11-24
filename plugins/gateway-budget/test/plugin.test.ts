@@ -3,9 +3,9 @@
 // scheduler plans but never fires).
 import { describe, expect, it } from 'vitest';
 import { createTestContext, type TestContext } from '@workbar/sdk/testing';
-import { validateSettingsSchema } from '@workbar/sdk';
+import { schedules, ScheduledJobController, validateSettingsSchema } from '@workbar/sdk';
 import {
-  createGatewayBudget, JOB_ID, LAST_BANDS_KEY, LAST_FETCH_AT_KEY, NOTIFY_70_KEY, NOTIFY_RESET_KEY, POLL_INTERVAL_KEY,
+  createGatewayBudget, DEFAULT_SCHEDULE, JOB_ID, LAST_BANDS_KEY, LAST_FETCH_AT_KEY, LEGACY_INTERVAL_KEY, NOTIFY_70_KEY, NOTIFY_RESET_KEY,
   settingsSchema, SNAPSHOT_KEY, STATUS_URL_KEY,
 } from '../src/index.js';
 import { GatewayTokenError } from '../src/gateway.js';
@@ -29,7 +29,8 @@ describe('AI Gateway Budget plugin', () => {
   it('activation arms the poll; the catch-up fetch shows one line per window', async () => {
     const { t, plugin, http } = setup();
     await plugin.activate(t.context);
-    expect(t.jobs.get(JOB_ID)).toEqual({ intervalSeconds: 60 });
+    expect(t.jobs.get(JOB_ID)).toEqual({ schedule: schedules.repeating(1) });
+    expect(t.settings.has(ScheduledJobController.specKey)).toBe(false); // the default is not persisted
     expect(labels(t)[0]).toBe('Gateway budget — waiting for first fetch');
     await poll(plugin);
     expect(http.calls[0]!.headers.authorization).toBe(`Bearer ${CANARY}`);
@@ -136,14 +137,37 @@ describe('AI Gateway Budget plugin', () => {
     }
   });
 
-  it('the poll interval setting re-arms the job live', async () => {
+  it('a schedule saved in Settings re-arms the job live', async () => {
     const { t, plugin } = setup();
-    t.settings.set(POLL_INTERVAL_KEY, 300);
     await plugin.activate(t.context);
-    expect(t.jobs.get(JOB_ID)).toEqual({ intervalSeconds: 300 });
-    await t.context.settings.set(POLL_INTERVAL_KEY, 30);
+    const work = schedules.repeating(15, { weekdaysOnly: true, window: { from: 9 * 60, to: 18 * 60 } });
+    await t.context.settings.set(ScheduledJobController.specKey, work);
     await new Promise(r => setTimeout(r, 10));
-    expect(t.jobs.get(JOB_ID)).toEqual({ intervalSeconds: 30 });
+    expect(t.jobs.get(JOB_ID)).toEqual({ schedule: work });
+    await t.context.settings.set(ScheduledJobController.specKey, schedules.manual());
+    await new Promise(r => setTimeout(r, 10));
+    expect(t.jobs.has(JOB_ID)).toBe(false);
+    await plugin.deactivate!();
+  });
+
+  it('the legacy seconds interval maps onto a repeating schedule and the old key is removed', async () => {
+    for (const [seconds, minutes] of [[60, 1], [30, 1], [90, 2], [300, 5], [3600, 60]] as const) {
+      const { t, plugin } = setup();
+      t.settings.set(LEGACY_INTERVAL_KEY, seconds);
+      await plugin.activate(t.context);
+      expect(t.settings.get(ScheduledJobController.specKey)).toEqual(schedules.repeating(minutes));
+      expect(t.jobs.get(JOB_ID)).toEqual({ schedule: schedules.repeating(minutes) });
+      expect(t.settings.has(LEGACY_INTERVAL_KEY)).toBe(false);
+      await plugin.deactivate!();
+    }
+  });
+
+  it('a garbage legacy interval is dropped and the default applies', async () => {
+    const { t, plugin } = setup();
+    t.settings.set(LEGACY_INTERVAL_KEY, 'often');
+    await plugin.activate(t.context);
+    expect(t.settings.has(LEGACY_INTERVAL_KEY)).toBe(false);
+    expect(t.jobs.get(JOB_ID)).toEqual({ schedule: DEFAULT_SCHEDULE });
     await plugin.deactivate!();
   });
 

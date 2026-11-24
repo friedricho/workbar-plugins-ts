@@ -231,7 +231,7 @@ export function createMuleSoftChangelog(options: MuleSoftOptions = {}): Capabili
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'MuleSoft Changelog', icon: 'file-search', summary: 'Scrapes MuleSoft’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'MuleSoft Changelog', icon: 'file-search', summary: 'Scrapes MuleSoft’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.1' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 

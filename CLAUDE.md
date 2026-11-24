@@ -100,3 +100,9 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   untested. The installed app's first `open -a` after a swap did not start it (starting
   the binary did); Pendo Feedback timed out once in `activate()` right after the swap and
   recovered on restart (watch for a repeat).
+- 2026-11-24 — AI Gateway Budget 2.1.0 polls on the shared schedule (SDK 3.2.0
+  `repeating`; default every minute) instead of a seconds field; a legacy
+  `pollIntervalSeconds` becomes whole minutes once. MuleSoft, Workato, Pendo and
+  Claude Spend are 2.0.1 with `minimumSDK` 3.2.0 (a saved Hourly schedule needs it).
+  Installed on the Mac. There, Gateway Budget already had an imported `schedule.spec`
+  (every 1 hour), so the 300 s legacy value was not migrated: the owner sets it in Settings.

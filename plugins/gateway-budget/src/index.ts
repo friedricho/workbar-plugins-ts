@@ -1,6 +1,7 @@
 // AI Gateway Budget: polls the AI gateway's rolling budget windows
 // (`/boomi/budget/status`, the Claude Code status line's budget display as a
-// plugin) every minute and shows one line per window in the menu, with
+// plugin) on a schedule (default every minute; it can be narrowed to weekdays
+// and working hours) and shows one line per window in the menu, with
 // threshold and reset notifications. The last good payload is snapshotted
 // into settings (no credential), so a relaunch starts warm and an offline
 // gateway shows stale data instead of nothing. Port of the Swift
@@ -8,6 +9,10 @@
 import {
   definePlugin,
   health,
+  ScheduledJobController,
+  schedules,
+  type ScheduleSpec,
+  type SettingsStore,
   type CapabilityPlugin,
   type MenuItem,
   type PluginContext,
@@ -19,7 +24,8 @@ import { BudgetClientError, BudgetGateway, GatewayTokenProvider, normalizedStatu
 export const PLUGIN_ID = 'boomibudget';
 export const JOB_ID = `${PLUGIN_ID}.poll`;
 export const STATUS_URL_KEY = 'statusURL';
-export const POLL_INTERVAL_KEY = 'pollIntervalSeconds';
+/** The retired seconds field (Swift's key); read once by the schedule migration, then removed. */
+export const LEGACY_INTERVAL_KEY = 'pollIntervalSeconds';
 export const NOTIFY_70_KEY = 'notifyAt70';
 export const NOTIFY_90_KEY = 'notifyAt90';
 export const NOTIFY_RESET_KEY = 'notifyOnReset';
@@ -36,13 +42,16 @@ export const settingsSchema: SettingsSchema = {
       fields: [
         { type: 'status', key: 'windows', label: 'Windows' },
         { type: 'status', key: 'updated', label: 'Updated' },
-        { type: 'action', key: 'refresh-now', label: 'Refresh now', help: 'Fetches the budget now — doesn’t change the cadence.' },
+        { type: 'action', key: 'refresh-now', label: 'Refresh now', help: 'Fetches the budget now — doesn’t change the schedule.' },
       ],
+    },
+    {
+      title: 'Schedule',
+      fields: [{ type: 'schedule', key: ScheduledJobController.specKey, label: 'Runs', help: 'Hourly can repeat every few minutes, on weekdays only and between set times.' }],
     },
     {
       title: 'Gateway',
       fields: [
-        { type: 'number', key: POLL_INTERVAL_KEY, label: 'Poll interval', min: 30, max: 3600, step: 30, unit: 's', default: 60 },
         { type: 'text', key: STATUS_URL_KEY, label: 'Status URL', placeholder: 'https://…/boomi/budget/status', default: PRODUCTION_URL, help: 'The gateway’s budget route. A base URL ending in /v1 is rewritten to the status route; empty restores the production default.' },
         { type: 'secret', key: SAVED_TOKEN_NAME, label: 'Token override', placeholder: 'optional', help: 'Normally the token comes from the corporate helper (CorporateAIClientProvisioning). A token saved here wins over it.' },
         { type: 'status', key: 'tokenSource', label: 'Token source' },
@@ -58,6 +67,17 @@ export const settingsSchema: SettingsSchema = {
     },
   ],
 };
+
+/** Every minute: the Swift plugin's cadence. */
+export const DEFAULT_SCHEDULE: ScheduleSpec = schedules.repeating(1);
+
+/** The old 30–3600 s interval keeps its cadence, rounded up to whole minutes; the old key is removed. */
+export async function migrateLegacyInterval(settings: SettingsStore): Promise<ScheduleSpec | null> {
+  const seconds = await settings.get<number>(LEGACY_INTERVAL_KEY);
+  if (seconds === undefined) return null;
+  await settings.delete(LEGACY_INTERVAL_KEY);
+  return typeof seconds === 'number' && seconds > 0 ? schedules.repeating(Math.ceil(seconds / 60)) : null;
+}
 
 type PollState = 'ok' | 'stale' | 'authFailed' | 'neverFetched';
 
@@ -77,7 +97,7 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
   let fetchedAt: number | null = null;
   let state: PollState = 'neverFetched';
   let lastFailurePosted = false;
-  let interval = 60;
+  let controller: ScheduledJobController | null = null;
   let unwatch: (() => void) | null = null;
   let ticker: ReturnType<typeof setInterval> | null = null;
   let running: { cancelled: boolean } | null = null;
@@ -115,17 +135,6 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
       updated: fetchedAt ? formatStatusTime(new Date(fetchedAt)) : 'never',
       tokenSource: tokens ? (tokens.usingSavedToken ? 'the token saved on this page' : 'the corporate helper') : '—',
     });
-  };
-
-  const loadInterval = async (c: PluginContext) => {
-    const v = await c.settings.get<number>(POLL_INTERVAL_KEY);
-    return typeof v === 'number' && v > 0 ? v : 60;
-  };
-
-  const arm = async (): Promise<void> => {
-    if (!ctx) return;
-    interval = await loadInterval(ctx);
-    await ctx.scheduler.update(JOB_ID, { intervalSeconds: interval });
   };
 
   const buildGateway = async (c: PluginContext): Promise<BudgetGateway> => {
@@ -200,7 +209,7 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
     c.reportHealth(health.warning(healthDetail()));
     if (!lastFailurePosted) { // one banner per outage
       lastFailurePosted = true;
-      notify('Gateway budget couldn’t refresh', `${message}. Showing the last data — retrying every ${interval}s.`);
+      notify('Gateway budget couldn’t refresh', `${message}. Showing the last data — it will try again at the next scheduled run.`);
     }
   };
 
@@ -224,21 +233,21 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
       if (!live()) return; // superseded or deactivated
       if (outcome.ok) await succeeded(c, outcome.status, reason);
       else await failed(c, outcome.error, reason);
-      if (reason === 'manual') { await c.scheduler.recordRun(JOB_ID); await arm(); }
+      if (reason === 'manual') { await c.scheduler.recordRun(JOB_ID); await controller?.manualRunFinished(); }
       publish();
     } catch { /* deactivated mid-run: the context is revoked */ }
     finally { if (running === token) running = null; }
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'AI Gateway Budget', icon: 'gauge', summary: 'Shows the AI gateway’s rolling budget windows, spend, and reset countdowns', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'AI Gateway Budget', icon: 'gauge', summary: 'Shows the AI gateway’s rolling budget windows, spend, and reset countdowns', version: '2.1.0' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
     async activate(context) {
       ctx = context;
       await context.settings.registerDefaults({
-        [STATUS_URL_KEY]: PRODUCTION_URL, [POLL_INTERVAL_KEY]: 60,
+        [STATUS_URL_KEY]: PRODUCTION_URL,
         [NOTIFY_70_KEY]: true, [NOTIFY_90_KEY]: true, [NOTIFY_RESET_KEY]: false,
       });
       // Warm start: the last snapshot shows until the catch-up fetch lands.
@@ -249,13 +258,20 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
       } catch { snapshot = null; fetchedAt = null; state = 'neverFetched'; }
       lastFailurePosted = false;
       unwatch = context.settings.onChange(key => {
-        if (key === STATUS_URL_KEY || key === POLL_INTERVAL_KEY) { gateway = null; void arm(); }
+        if (key === STATUS_URL_KEY) gateway = null;
+      });
+      controller = await ScheduledJobController.create({
+        jobId: JOB_ID,
+        defaultSpec: DEFAULT_SCHEDULE,
+        context,
+        migrateLegacy: migrateLegacyInterval,
+        onFire: () => startRun('scheduled'),
       });
       ticker = setInterval(publish, 60_000); // countdowns stay current between polls
-      await arm();
+      await controller.arm();
       context.reportHealth(health.ok(healthDetail()));
       publish();
-      context.logger.info(`activated — polling every ${interval}s`);
+      context.logger.info(`activated — schedule ${JSON.stringify(controller.spec)}`);
     },
 
     async deactivate() {
@@ -264,7 +280,8 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
       unwatch = null;
       if (ticker) clearInterval(ticker);
       ticker = null;
-      await ctx?.scheduler.cancel(JOB_ID).catch(() => {});
+      await controller?.disarm().catch(() => {});
+      controller = null;
       ctx = null;
       gateway = null;
       tokens = null;
@@ -274,7 +291,8 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
       lastFailurePosted = false;
     },
 
-    async onJob(id) { if (id === JOB_ID) await startRun('scheduled'); },
+    onJob: async id => { await controller?.onJob(id); },
+    onJobNextRun: (id, next) => controller?.onJobNextRun(id, next),
 
     async onMenuItem(id) {
       if (id === 'refresh') void startRun('manual');

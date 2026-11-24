@@ -279,7 +279,7 @@ export function createClaudeSpend(options: ClaudeSpendOptions = {}): CapabilityP
   const startRun = (reason: 'manual' | 'scheduled'): Promise<void> => { const run = doRun(reason); currentRun = run; return run; };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Claude Spend', icon: 'credit-card', summary: 'Shows the Claude Desktop/Cowork usage-credit budget and thresholds', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'Claude Spend', icon: 'credit-card', summary: 'Shows the Claude Desktop/Cowork usage-credit budget and thresholds', version: '2.0.1' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
