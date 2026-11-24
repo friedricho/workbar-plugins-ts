@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2024",
+      "DOM"
+    ],
+    "types": [],
+    "noEmit": true
+  },
+  "include": [
+    "plugins/*/src/views"
+  ],
+  "exclude": []
+}

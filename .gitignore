@@ -7,3 +7,5 @@ Thumbs.db
 .vscode/
 .build/
 plugins/*/bin/
+# Page scripts built from plugins/*/src/views/*.ts (a build product, like dist/)
+plugins/*/views/*.js

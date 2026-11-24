@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "id": "quickcapture",
+  "name": "Obsidian Quick Capture",
+  "version": "2.0.0",
+  "minimumSDK": "3.1.0",
+  "main": "dist/index.mjs",
+  "menuOrder": 1,
+  "views": { "panel": "views/panel.html" },
+  "panel": { "view": "views/panel.html", "width": 700, "height": 46 }
+}

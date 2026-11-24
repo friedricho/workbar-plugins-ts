@@ -18,5 +18,7 @@
       "@workbar/sdk/testing": ["../workbar-electron/packages/sdk/src/testing.ts"]
     }
   },
-  "include": ["plugins/*/src", "plugins/*/test", "shared", "*.config.ts"]
+  "include": ["plugins/*/src", "plugins/*/test", "shared", "*.config.ts"],
+  // Page scripts run in a browser: tsconfig.views.json typechecks them with DOM types instead.
+  "exclude": ["plugins/*/src/views"]
 }
