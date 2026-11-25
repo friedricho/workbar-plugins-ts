@@ -168,7 +168,7 @@ describe('Pendo Feedback plugin', () => {
   });
 
   it('actions() declares exactly the run-now action', () => {
-    expect(createPendoFeedback().actions!()).toEqual([{ name: 'run-now', title: 'Update report now', summary: 'Fetch Pendo feedback and rewrite the report', acceptsText: false }]);
+    expect(createPendoFeedback().actions!()).toEqual([{ name: 'run-now', title: 'Update report now', summary: 'Fetch Pendo feedback and rewrite the report', acceptsText: false, agent: true }]);
   });
 
   it('an unconfigured perform reports not-configured and starts nothing', async () => {

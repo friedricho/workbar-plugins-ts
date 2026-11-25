@@ -240,7 +240,7 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'AI Gateway Budget', icon: 'gauge', summary: 'Shows the AI gateway’s rolling budget windows, spend, and reset countdowns', version: '2.1.0' },
+    metadata: { id: PLUGIN_ID, name: 'AI Gateway Budget', icon: 'gauge', summary: 'Shows the AI gateway’s rolling budget windows, spend, and reset countdowns', version: '2.1.1' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
@@ -299,7 +299,7 @@ export function createGatewayBudget(options: BudgetOptions = {}): CapabilityPlug
       if (id === 'details') ctx?.requestOpenDetail();
     },
 
-    actions: () => [{ name: 'refresh-now', title: 'Refresh gateway budget now', summary: 'Fetch the current Boomi AI gateway budget counters', acceptsText: false }],
+    actions: () => [{ name: 'refresh-now', title: 'Refresh gateway budget now', summary: 'Fetch the current Boomi AI gateway budget counters', acceptsText: false, agent: true }],
 
     async perform(action) {
       if (action !== 'refresh-now') return undefined;

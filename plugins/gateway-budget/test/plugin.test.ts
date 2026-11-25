@@ -220,6 +220,6 @@ describe('AI Gateway Budget plugin', () => {
   });
 
   it('actions() declares exactly the refresh-now action', () => {
-    expect(createGatewayBudget().actions!()).toEqual([{ name: 'refresh-now', title: 'Refresh gateway budget now', summary: 'Fetch the current Boomi AI gateway budget counters', acceptsText: false }]);
+    expect(createGatewayBudget().actions!()).toEqual([{ name: 'refresh-now', title: 'Refresh gateway budget now', summary: 'Fetch the current Boomi AI gateway budget counters', acceptsText: false, agent: true }]);
   });
 });

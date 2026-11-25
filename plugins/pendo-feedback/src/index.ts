@@ -246,7 +246,7 @@ export function createPendoFeedback(options: PendoOptions = {}): CapabilityPlugi
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Autopilot Pendo Feedback', icon: 'message-square', summary: 'Fetches Pendo guide poll feedback on a schedule and writes a Markdown report plus a SQLite history', version: '2.0.1' },
+    metadata: { id: PLUGIN_ID, name: 'Autopilot Pendo Feedback', icon: 'message-square', summary: 'Fetches Pendo guide poll feedback on a schedule and writes a Markdown report plus a SQLite history', version: '2.0.2' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
@@ -297,7 +297,7 @@ export function createPendoFeedback(options: PendoOptions = {}): CapabilityPlugi
       if (id === 'run') void startRun('manual');
     },
 
-    actions: () => [{ name: 'run-now', title: 'Update report now', summary: 'Fetch Pendo feedback and rewrite the report', acceptsText: false }],
+    actions: () => [{ name: 'run-now', title: 'Update report now', summary: 'Fetch Pendo feedback and rewrite the report', acceptsText: false, agent: true }],
 
     async perform(action) {
       if (action !== 'run-now') return undefined;

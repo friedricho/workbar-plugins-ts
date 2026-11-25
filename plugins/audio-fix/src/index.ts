@@ -324,7 +324,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   const repairNow = async (c: PluginContext) => { await enqueue(c, 'manual', true); };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Audio Fix', icon: 'speaker', summary: 'Repairs the monitor’s stuck DisplayPort audio stream', version: '2.2.0' },
+    metadata: { id: PLUGIN_ID, name: 'Audio Fix', icon: 'speaker', summary: 'Repairs the monitor’s stuck DisplayPort audio stream', version: '2.2.1' },
     settings: settingsSchema,
 
     async activate(context) {
@@ -415,7 +415,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
 
     async onMenuItem(id) { if (id === 'repair' && ctx) void repairNow(ctx); },
 
-    actions: () => [{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false }],
+    actions: () => [{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false, agent: true }],
 
     async perform(action) {
       const c = ctx;

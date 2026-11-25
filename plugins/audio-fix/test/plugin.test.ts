@@ -90,7 +90,7 @@ describe('Audio Fix plugin', () => {
 
   it('declares exactly the repair-now action', () => {
     const actions = createAudioFix().actions!();
-    expect(actions).toEqual([{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false }]);
+    expect(actions).toEqual([{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false, agent: true }]);
   });
 
   it('perform without activation throws', async () => {
@@ -474,5 +474,6 @@ describe('Audio Fix plugin', () => {
       expect(sleeps).toEqual([]);
     });
   });
+
 
 });

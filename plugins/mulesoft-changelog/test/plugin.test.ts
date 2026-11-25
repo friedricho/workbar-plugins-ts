@@ -230,4 +230,9 @@ describe('MuleSoft Changelog plugin', () => {
     expect(t.settings.has(ScheduledJobController.specKey)).toBe(false);
     await plugin.deactivate!();
   });
+
+  it('marks its only action as safe for AI agents (MCP)', () => {
+    const actions = createMuleSoftChangelog().actions!();
+    expect(actions.map(a => [a.name, a.agent])).toEqual([['scrape-now', true]]);
+  });
 });

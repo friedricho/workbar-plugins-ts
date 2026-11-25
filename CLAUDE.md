@@ -127,3 +127,7 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   Fixes a helper crashing while idle leaving auto-repair silently dead when "repair
   while idle" was off. No restart after deactivate or with auto-repair off. Not yet
   installed on the Mac.
+- 2026-11-25 — Code review #15: plugin actions that are safe for AI agents carry `agent: true`
+  (SDK 3.4.0, optional, ignored by older hosts): Quick Capture `capture`, Audio Fix `repair-now`, and the
+  refresh/scrape/run-now action of Workato, MuleSoft, Pendo, Gateway Budget and Claude Spend (each patch-bumped).
+  `workbar mcp` lists and runs only those; the CLI still runs everything.

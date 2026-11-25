@@ -279,7 +279,7 @@ export function createClaudeSpend(options: ClaudeSpendOptions = {}): CapabilityP
   const startRun = (reason: 'manual' | 'scheduled'): Promise<void> => { const run = doRun(reason); currentRun = run; return run; };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Claude Spend', icon: 'credit-card', summary: 'Shows the Claude Desktop/Cowork usage-credit budget and thresholds', version: '2.0.1' },
+    metadata: { id: PLUGIN_ID, name: 'Claude Spend', icon: 'credit-card', summary: 'Shows the Claude Desktop/Cowork usage-credit budget and thresholds', version: '2.0.2' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
@@ -321,7 +321,7 @@ export function createClaudeSpend(options: ClaudeSpendOptions = {}): CapabilityP
       if (id === 'details') ctx?.requestOpenDetail();
     },
 
-    actions: () => [{ name: 'refresh-now', title: 'Refresh Claude credits now', summary: 'Fetch the current Claude Desktop/Cowork usage credits', acceptsText: false }],
+    actions: () => [{ name: 'refresh-now', title: 'Refresh Claude credits now', summary: 'Fetch the current Claude Desktop/Cowork usage credits', acceptsText: false, agent: true }],
 
     async perform(action) {
       if (action !== 'refresh-now') return undefined;

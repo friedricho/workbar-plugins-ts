@@ -150,4 +150,9 @@ describe('Workato Changelog plugin', () => {
     expect(t.jobs.has(JOB_ID)).toBe(true);
     expect((t.menu[2] as { enabled?: boolean }).enabled).not.toBe(false);
   });
+
+  it('marks its only action as safe for AI agents (MCP)', () => {
+    const actions = createWorkatoChangelog().actions!();
+    expect(actions.map(a => [a.name, a.agent])).toEqual([['scrape-now', true]]);
+  });
 });

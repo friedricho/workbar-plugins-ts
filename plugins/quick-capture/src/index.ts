@@ -217,7 +217,7 @@ export function createQuickCapture(options: QuickCaptureOptions = {}): Capabilit
   // ------------------------------------------------------------ the plugin
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Obsidian Quick Capture', icon: 'sparkles', summary: 'Global capture bar → Obsidian kanban card', version: '2.0.0' },
+    metadata: { id: PLUGIN_ID, name: 'Obsidian Quick Capture', icon: 'sparkles', summary: 'Global capture bar → Obsidian kanban card', version: '2.0.1' },
     settings: settingsSchema,
 
     async activate(context) {
@@ -266,7 +266,7 @@ export function createQuickCapture(options: QuickCaptureOptions = {}): Capabilit
       await submit(c, m.text);
     },
 
-    actions: () => [{ name: 'capture', title: 'Capture a card', summary: 'Add a card to the configured board', acceptsText: true }],
+    actions: () => [{ name: 'capture', title: 'Capture a card', summary: 'Add a card to the configured board', acceptsText: true, agent: true }],
 
     async perform(action, text) {
       const c = ctx;

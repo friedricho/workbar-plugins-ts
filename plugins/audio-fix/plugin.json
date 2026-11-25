@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "id": "audiofix",
   "name": "Audio Fix",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "minimumSDK": "3.3.0",
   "main": "dist/index.mjs",
   "platforms": ["darwin"],
