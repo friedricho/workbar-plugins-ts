@@ -83,10 +83,14 @@ export class ClaudeUsageClient {
     const override = await trimmed(ORG_UUID_OVERRIDE_KEY);
     if (override && UUID.test(override)) return override;
 
-    const active = pairs.find(p => p.name === 'lastActiveOrg')?.value.trim();
-    if (active && UUID.test(active)) { await this.settings.set(ORG_UUID_KEY, active); return active; }
-
+    // Read the cache once: it decides both whether to write the cookie's org and whether to use it.
     const cached = await trimmed(ORG_UUID_KEY);
+    const active = pairs.find(p => p.name === 'lastActiveOrg')?.value.trim();
+    if (active && UUID.test(active)) {
+      if (cached !== active) await this.settings.set(ORG_UUID_KEY, active); // unchanged on every poll: no write
+      return active;
+    }
+
     if (cached && UUID.test(cached)) return cached;
 
     const text = await this.get(`${BASE_URL}/api/organizations`, pairs);

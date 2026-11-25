@@ -1,7 +1,7 @@
 // Ported from ClaudeUsageClientTests: header construction, org-id discovery
 // (override → cookie → cache → API), the error map (401-retry,
 // 403-HTML-is-Cloudflare, HTML bodies, timeout) and the suite-cached org id.
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createTestContext } from '@workbar/sdk/testing';
 import { ClaudeUsageClient, ORG_UUID_KEY, ORG_UUID_OVERRIDE_KEY, USER_AGENT, bodyIsHTML, UsageError } from '../src/client.js';
 import { SessionCookieError } from '../src/cookies.js';
@@ -29,6 +29,26 @@ describe('ClaudeUsageClient', () => {
     expect(call.headers['user-agent']).toBe(USER_AGENT);
     expect(USER_AGENT).toContain('Mozilla');
     expect(t.settings.get(ORG_UUID_KEY)).toBe(CANARY_ORG); // cached (not a secret)
+  });
+
+  it('the cookie org is written only when it differs from the stored one (no write per poll)', async () => {
+    const { t, http, client } = setup();
+    const set = vi.spyOn(t.context.settings, 'set');
+    await client.fetch(); // first poll: nothing stored yet, so the cookie org is cached
+    expect(set).toHaveBeenCalledTimes(1);
+    await client.fetch(); // same cookie org: no write
+    await client.fetch();
+    expect(set).toHaveBeenCalledTimes(1);
+    expect(http.calls).toHaveLength(3);
+    // A different lastActiveOrg in the cookie is written once.
+    const other = '66666666-7777-8888-9999-000000000000';
+    const cookies = new FakeCookies();
+    cookies.pairs = [{ name: 'sessionKey', value: CANARY_SESSION, domain: 'claude.ai' }, { name: 'lastActiveOrg', value: other, domain: 'claude.ai' }];
+    const again = new ClaudeUsageClient(http, cookies, t.context.settings);
+    await again.fetch();
+    await again.fetch();
+    expect(set).toHaveBeenCalledTimes(2);
+    expect(t.settings.get(ORG_UUID_KEY)).toBe(other);
   });
 
   it('a pasted org override wins over the cookie and the API', async () => {
