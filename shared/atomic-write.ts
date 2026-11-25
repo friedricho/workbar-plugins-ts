@@ -17,6 +17,15 @@ export class WriteError extends Error {
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
+/** Best-effort fsync of a directory (not on Windows; some filesystems refuse it). */
+async function fsyncDir(dir: string): Promise<void> {
+  if (process.platform === 'win32') return;
+  try {
+    const dh = await fs.open(dir, 'r');
+    try { await dh.sync(); } finally { await dh.close(); }
+  } catch { /* best effort */ }
+}
+
 export async function writeTextAtomic(file: string, content: string, tempPrefix: string): Promise<void> {
   const dir = path.dirname(file);
   try { await fs.mkdir(dir, { recursive: true }); }
@@ -25,10 +34,17 @@ export async function writeTextAtomic(file: string, content: string, tempPrefix:
   try { mode = (await fs.stat(file)).mode & 0o7777; } catch { mode = undefined; }
   const tmp = path.join(dir, `.${tempPrefix}-${crypto.randomUUID()}.tmp`);
   try {
-    await fs.writeFile(tmp, content, 'utf8');
+    // fsync the temp file before the rename: a power loss must not leave an empty note.
+    const fh = await fs.open(tmp, 'w');
+    try {
+      await fh.writeFile(content, 'utf8');
+      await fh.sync();
+    } finally {
+      await fh.close();
+    }
     if (mode !== undefined) await fs.chmod(tmp, mode).catch(() => {});
     for (let attempt = 0; ; attempt++) {
-      try { await fs.rename(tmp, file); return; }
+      try { await fs.rename(tmp, file); break; }
       catch (e) {
         const code = (e as NodeJS.ErrnoException).code;
         if (attempt < 6 && (code === 'EPERM' || code === 'EBUSY' || code === 'EACCES')) { await sleep(25 * 2 ** attempt); continue; }
@@ -40,4 +56,5 @@ export async function writeTextAtomic(file: string, content: string, tempPrefix:
     if (e instanceof WriteError) throw e;
     throw new WriteError(`${file}: ${(e as Error).message}`);
   }
+  await fsyncDir(dir);
 }

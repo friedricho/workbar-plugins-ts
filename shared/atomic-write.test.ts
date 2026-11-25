@@ -28,6 +28,15 @@ describe('writeTextAtomic (ported from ChangelogNoteWriterTests)', () => {
     await writeTextAtomic(file, 'new', 'p');
     expect(fs.statSync(file).mode & 0o777).toBe(0o640);
   });
+  it.skipIf(process.platform === 'win32')('an overwrite keeps the original mode and leaves no temp file', async () => {
+    const file = path.join(tmp, 'n.md');
+    fs.writeFileSync(file, 'old');
+    fs.chmodSync(file, 0o600);
+    await writeTextAtomic(file, 'new', 'p');
+    expect(fs.readFileSync(file, 'utf8')).toBe('new');
+    expect(fs.statSync(file).mode & 0o777).toBe(0o600);
+    expect(fs.readdirSync(tmp)).toEqual(['n.md']);
+  });
   it('reports a folder it cannot create', async () => {
     const blocker = path.join(tmp, 'file');
     fs.writeFileSync(blocker, '');
