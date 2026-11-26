@@ -192,7 +192,7 @@ describe('the capture action (CLI / MCP)', () => {
   });
   it('declares exactly the capture action, which takes text; unknown actions are no-ops', async () => {
     const { plugin } = setup();
-    expect(plugin.actions!()).toEqual([{ name: 'capture', title: 'Capture a card', summary: 'Add a card to the configured board', acceptsText: true }]);
+    expect(plugin.actions!()).toEqual([{ name: 'capture', title: 'Capture a card', summary: 'Add a card to the configured board', acceptsText: true, agent: true }]);
     expect(await plugin.perform!('nope')).toBeUndefined();
   });
   it('before activation the action says so', async () => {
@@ -376,4 +376,5 @@ describe('the board list helper actions', () => {
     expect(await plugin.perform!('scan-boards')).toContain('Board.md');
     expect(t.status.get('boards')).toContain('Board.md');
   });
+
 });

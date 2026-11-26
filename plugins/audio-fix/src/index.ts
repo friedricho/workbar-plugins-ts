@@ -39,6 +39,8 @@ export const IDLE_INTERVAL_MS = 5 * 60_000;
 /** A play-start repair also fires when nothing was wrong (the blip the user
  *  accepted), so it is bounded: at most once per this window. */
 export const PLAY_GUARD_MS = 10 * 60_000;
+/** Waits before each restart attempt after the helper exits on its own. */
+export const RESTART_BACKOFF_MS: readonly number[] = [1000, 5000, 30_000];
 
 export const settingsSchema: SettingsSchema = {
   sections: [
@@ -74,6 +76,8 @@ export interface AudioFixOptions {
   readonly settleMs?: number;
   readonly replyTimeoutMs?: number;
   readonly idleIntervalMs?: number;
+  /** Waits before each helper restart attempt (default 1 s, 5 s, 30 s). */
+  readonly restartBackoffMs?: readonly number[];
 }
 
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -84,11 +88,13 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   const settleMs = options.settleMs ?? SETTLE_MS;
   const replyTimeoutMs = options.replyTimeoutMs ?? REPLY_TIMEOUT_MS;
   const idleIntervalMs = options.idleIntervalMs ?? IDLE_INTERVAL_MS;
+  const restartBackoffMs = options.restartBackoffMs ?? RESTART_BACKOFF_MS;
 
   let ctx: PluginContext | null = null;
   let helper: Helper | null = null;
   let starting: Promise<Helper> | null = null;
   let watching = false;
+  let restarting = false;
   let gate = new RepairGate();
   let settleTimer: ReturnType<typeof setTimeout> | null = null;
   let idleTimer: ReturnType<typeof setInterval> | null = null;
@@ -117,7 +123,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   };
 
   /** Sends one command and waits for the reply with its id. A dead helper is
-   *  restarted once; the host reports no exit event, so a failed send is the signal. */
+   *  restarted once; onHelperExit normally gets there first, a failed send is the fallback. */
   const request = async (c: PluginContext, body: Record<string, unknown>): Promise<HelperReply> => {
     const id = nextId++;
     const reply = new Promise<HelperReply>((resolve, reject) => {
@@ -318,7 +324,7 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
   const repairNow = async (c: PluginContext) => { await enqueue(c, 'manual', true); };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Audio Fix', icon: 'speaker', summary: 'Repairs the monitor’s stuck DisplayPort audio stream', version: '2.1.0' },
+    metadata: { id: PLUGIN_ID, name: 'Audio Fix', icon: 'speaker', summary: 'Repairs the monitor’s stuck DisplayPort audio stream', version: '2.2.1' },
     settings: settingsSchema,
 
     async activate(context) {
@@ -367,9 +373,49 @@ export function createAudioFix(options: AudioFixOptions = {}): CapabilityPlugin 
       if (p) { pending.delete(m.id); p.resolve(m); }
     },
 
+    /** The helper died on its own: its CoreAudio listeners are gone, and with
+     *  nothing else sending, auto-repair would be silently dead. Restart it and
+     *  re-arm the watch, backing off; after the last failure say so. */
+    async onHelperExit(name, info) {
+      const c = ctx;
+      if (name !== HELPER || !c) return;
+      helper = null; starting = null; watching = false;
+      c.logger.warn('the audio helper exited', { code: info.code, signal: info.signal });
+      // Decide by the setting, not by `watching`: a failed send in request() clears
+      // `watching` (and its own restart fails while this exit is still pending), so
+      // by now `watching` no longer says whether auto-repair should be running.
+      if (restarting) return;
+      if (!((await c.settings.get<boolean>(AUTO_REPAIR_KEY)) ?? true)) return;
+      restarting = true;
+      try {
+        let lastError = '';
+        for (const delay of restartBackoffMs) {
+          await sleep(delay);
+          if (ctx !== c) return; // deactivated meanwhile
+          if (!((await c.settings.get<boolean>(AUTO_REPAIR_KEY)) ?? true)) return; // turned off meanwhile
+          if (watching) return; // something else (a repair's restart, a settings change) re-armed it
+          try {
+            await startWatching(c);
+            const t = await targetOf(c);
+            c.logger.info('restarted the audio helper and re-armed the device listeners');
+            c.reportHealth(health.ok(`Watching for ${t.text}`));
+            setState(c, `Watching for ${t.text}`);
+            return;
+          } catch (e) {
+            lastError = msg(e);
+            helper = null; starting = null; watching = false;
+            c.logger.warn(`restarting the audio helper failed: ${lastError}`);
+          }
+        }
+        c.logger.error(`the audio helper keeps stopping (${lastError || 'no restart attempted'})`);
+        c.reportHealth(health.warning('Audio helper keeps stopping — use Repair Now'));
+        setState(c, 'Audio helper keeps stopping — use Repair Now');
+      } finally { restarting = false; }
+    },
+
     async onMenuItem(id) { if (id === 'repair' && ctx) void repairNow(ctx); },
 
-    actions: () => [{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false }],
+    actions: () => [{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false, agent: true }],
 
     async perform(action) {
       const c = ctx;

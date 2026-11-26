@@ -231,7 +231,7 @@ export function createMuleSoftChangelog(options: MuleSoftOptions = {}): Capabili
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'MuleSoft Changelog', icon: 'file-search', summary: 'Scrapes MuleSoft’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.1' },
+    metadata: { id: PLUGIN_ID, name: 'MuleSoft Changelog', icon: 'file-search', summary: 'Scrapes MuleSoft’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.2' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
@@ -278,7 +278,7 @@ export function createMuleSoftChangelog(options: MuleSoftOptions = {}): Capabili
       if (id === 'open' && ctx && config.vaultFolder) await ctx.shell.openPath(config.vaultFolder);
     },
 
-    actions: () => [{ name: 'scrape-now', title: 'Scrape now', summary: 'Fetch the MuleSoft release notes and update the vault notes', acceptsText: false }],
+    actions: () => [{ name: 'scrape-now', title: 'Scrape now', summary: 'Fetch the MuleSoft release notes and update the vault notes', acceptsText: false, agent: true }],
 
     async perform(action) {
       if (action !== 'scrape-now') return undefined;

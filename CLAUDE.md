@@ -120,3 +120,14 @@ WORKBAR_PLUGINS_DIR=$PWD/plugins  # point the host here for a dev run
   answered `busy` while an app held the monitor). Still to do: install
   `dist/audiofix-2.1.0.workbarplugin` in the packaged app and watch the log for idle
   repairs and the play-start blip.
+- 2026-11-25 — Audio Fix 2.2.0 (needs SDK 3.3.0): `onHelperExit` drops the dead helper
+  and, when auto-repair is on, restarts it and re-sends `watch`
+  after 1 s / 5 s / 30 s (option `restartBackoffMs` for tests); after the last failure
+  health goes yellow ("Audio helper keeps stopping — use Repair Now") with an error log.
+  Fixes a helper crashing while idle leaving auto-repair silently dead when "repair
+  while idle" was off. No restart after deactivate or with auto-repair off. Not yet
+  installed on the Mac.
+- 2026-11-25 — Code review #15: plugin actions that are safe for AI agents carry `agent: true`
+  (SDK 3.4.0, optional, ignored by older hosts): Quick Capture `capture`, Audio Fix `repair-now`, and the
+  refresh/scrape/run-now action of Workato, MuleSoft, Pendo, Gateway Budget and Claude Spend (each patch-bumped).
+  `workbar mcp` lists and runs only those; the CLI still runs everything.

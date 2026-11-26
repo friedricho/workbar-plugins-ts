@@ -350,7 +350,7 @@ describe('Claude Spend plugin', () => {
 
   it('declares exactly the refresh-now action; perform starts a run; unknown names are no-ops', async () => {
     const { t, plugin } = setup();
-    expect(plugin.actions!()).toEqual([{ name: 'refresh-now', title: 'Refresh Claude credits now', summary: 'Fetch the current Claude Desktop/Cowork usage credits', acceptsText: false }]);
+    expect(plugin.actions!()).toEqual([{ name: 'refresh-now', title: 'Refresh Claude credits now', summary: 'Fetch the current Claude Desktop/Cowork usage credits', acceptsText: false, agent: true }]);
     await plugin.activate(t.context);
     expect(await plugin.perform!('refresh-now')).toBe('Claude credits refresh started');
     await plugin.currentRun;
@@ -380,4 +380,5 @@ describe('Claude Spend plugin', () => {
     await run(plugin);
     expect(http.calls.at(-1)!.url).toContain('99999999-8888-7777-6666-555555555555');
   });
+
 });

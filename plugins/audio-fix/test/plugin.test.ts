@@ -51,10 +51,11 @@ async function setup(
   clock = { t: 1_000_000 },
   settleMs = 5,
   idleMs = 5 * 60_000,
+  backoff?: readonly number[],
 ) {
   const t: TestContext = createTestContext('audiofix');
   const sleeps: number[] = [];
-  const plugin = createAudioFix({ now: () => clock.t, sleep: async ms => { sleeps.push(ms); }, settleMs, replyTimeoutMs: 200, idleIntervalMs: idleMs });
+  const plugin = createAudioFix({ now: () => clock.t, sleep: async ms => { sleeps.push(ms); }, settleMs, replyTimeoutMs: 200, idleIntervalMs: idleMs, ...(backoff ? { restartBackoffMs: backoff } : {}) });
   const h = fakeHelper(plugin, script);
   (t.context as { helpers: unknown }).helpers = h.helpers;
   for (const [k, v] of Object.entries(settings)) t.settings.set(k, v);
@@ -89,7 +90,7 @@ describe('Audio Fix plugin', () => {
 
   it('declares exactly the repair-now action', () => {
     const actions = createAudioFix().actions!();
-    expect(actions).toEqual([{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false }]);
+    expect(actions).toEqual([{ name: 'repair-now', title: 'Repair now', summary: 'Repair the monitor’s DisplayPort audio stream', acceptsText: false, agent: true }]);
   });
 
   it('perform without activation throws', async () => {
@@ -383,4 +384,96 @@ describe('Audio Fix plugin', () => {
     plugin.onHelperMessage!('other', { event: 'devicesChanged' });
     expect(t.notifications).toHaveLength(0);
   });
+
+  describe('helper exit', () => {
+    const exit = { code: 1, signal: null };
+    const watches = (h: { sent: Sent[] }) => h.sent.filter(s => s.cmd === 'watch');
+
+    it('an unexpected exit restarts the helper and re-sends watch, backing off 1 s then stopping at the first success', async () => {
+      const { t, plugin, h, sleeps } = await setup(() => OK);
+      await plugin.activate(t.context);
+      await tick(); await flush();
+      expect(h.starts).toBe(1);
+      expect(watches(h)).toHaveLength(1);
+      await plugin.onHelperExit!('audiofix', exit);
+      expect(sleeps).toEqual([1000]);
+      expect(h.starts).toBe(2);
+      expect(watches(h)).toHaveLength(2);
+      expect(t.health.at(-1)).toMatchObject({ kind: 'ok' });
+      await plugin.deactivate();
+    });
+
+    it('restarts even when a failed send already cleared the watch before the exit arrived', async () => {
+      // The race: a repair's send fails first (request() clears `watching`, and its own restart is refused
+      // because the host still lists the dead helper), then the exit event lands. Auto-repair must come back.
+      const { t, plugin, h } = await setup(() => OK);
+      await plugin.activate(t.context);
+      await tick(); await flush();
+      const realStart = h.helpers.start;
+      h.crash();
+      h.helpers.start = async () => { throw new Error('helper "audiofix" is already running'); };
+      await plugin.perform!('repair-now');
+      await tick(); await flush();
+      h.helpers.start = realStart;
+      const before = watches(h).length;
+      await plugin.onHelperExit!('audiofix', exit);
+      expect(watches(h)).toHaveLength(before + 1);
+      expect(t.health.at(-1)).toMatchObject({ kind: 'ok' });
+      await plugin.deactivate();
+    });
+
+    it('retries with 1 s, 5 s, 30 s and ends in a warning when every attempt fails', async () => {
+      const { t, plugin, h, sleeps } = await setup(() => OK);
+      await plugin.activate(t.context);
+      await tick(); await flush();
+      const realStart = h.helpers.start;
+      h.helpers.start = async () => { throw new Error('spawn failed'); };
+      await plugin.onHelperExit!('audiofix', exit);
+      expect(sleeps).toEqual([1000, 5000, 30_000]);
+      expect(t.health.at(-1)).toEqual({ kind: 'warning', detail: 'Audio helper keeps stopping — use Repair Now' });
+      h.helpers.start = realStart;
+      await plugin.deactivate();
+    });
+
+    it('a later attempt that succeeds ends the retries', async () => {
+      const { t, plugin, h, sleeps } = await setup(() => OK);
+      await plugin.activate(t.context);
+      await tick(); await flush();
+      const realStart = h.helpers.start;
+      let calls = 0;
+      h.helpers.start = async () => { if (++calls < 2) throw new Error('spawn failed'); return realStart(); };
+      await plugin.onHelperExit!('audiofix', exit);
+      expect(sleeps).toEqual([1000, 5000]);
+      expect(t.health.at(-1)).toMatchObject({ kind: 'ok' });
+      await plugin.deactivate();
+    });
+
+    it('does not restart when auto-repair is off', async () => {
+      const { t, plugin, h, sleeps } = await setup(() => OK);
+      await plugin.activate(t.context);
+      await tick(); await flush();
+      t.settings.set(AUTO_REPAIR_KEY, false);
+      await tick(); await flush();
+      const starts = h.starts;
+      await plugin.onHelperExit!('audiofix', exit);
+      expect(h.starts).toBe(starts);
+      expect(sleeps).toEqual([]);
+      await plugin.deactivate();
+    });
+
+    it('does not restart after deactivation, or for another helper name', async () => {
+      const { t, plugin, h, sleeps } = await setup(() => OK);
+      await plugin.activate(t.context);
+      await tick(); await flush();
+      await plugin.onHelperExit!('other', exit);
+      expect(sleeps).toEqual([]);
+      await plugin.deactivate();
+      const starts = h.starts;
+      await plugin.onHelperExit!('audiofix', exit);
+      expect(h.starts).toBe(starts);
+      expect(sleeps).toEqual([]);
+    });
+  });
+
+
 });

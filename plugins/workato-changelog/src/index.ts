@@ -200,7 +200,7 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
   };
 
   return {
-    metadata: { id: PLUGIN_ID, name: 'Workato Changelog', icon: 'file-search', summary: 'Scrapes Workato’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.1' },
+    metadata: { id: PLUGIN_ID, name: 'Workato Changelog', icon: 'file-search', summary: 'Scrapes Workato’s release notes into quarterly Markdown notes in your Obsidian vault', version: '2.0.2' },
     settings: settingsSchema,
     get currentRun() { return currentRun; },
 
@@ -241,7 +241,7 @@ export function createWorkatoChangelog(options: WorkatoOptions = {}): Capability
       if (id === 'open' && ctx && config.vaultFolder) await ctx.shell.openPath(config.vaultFolder);
     },
 
-    actions: () => [{ name: 'scrape-now', title: 'Scrape now', summary: 'Fetch the Workato changelog and update the vault notes', acceptsText: false }],
+    actions: () => [{ name: 'scrape-now', title: 'Scrape now', summary: 'Fetch the Workato changelog and update the vault notes', acceptsText: false, agent: true }],
 
     async perform(action) {
       if (action !== 'scrape-now') return undefined;

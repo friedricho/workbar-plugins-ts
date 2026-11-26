@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "id": "quickcapture",
   "name": "Obsidian Quick Capture",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "minimumSDK": "3.1.0",
   "main": "dist/index.mjs",
   "menuOrder": 1,
